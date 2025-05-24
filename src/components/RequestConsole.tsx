@@ -1,6 +1,17 @@
+import { useEffect } from 'react';
 import Table from 'react-bootstrap/Table';
+import { GetRequests } from '../service/RequestData';
 
 export function RequestConsole() {
+
+    //Loading Data
+    useEffect(() => {
+        const loadData = async () => {
+            const reqDetails = await GetRequests()
+            console.log(reqDetails)
+        }
+        loadData();
+    }, []);
 
     const tHeads: string[] = [
         "Request ID",
