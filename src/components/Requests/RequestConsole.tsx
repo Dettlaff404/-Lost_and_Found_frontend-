@@ -5,6 +5,7 @@ import { DeleteRequest, GetRequests, UpdateRequest, AddRequestData } from '../..
 import EditRequest from './EditRequest';
 import { formatDate } from '../../service/Util';
 import AddRequest from './AddRequest';
+import styles from './requeststyle.module.css'
 
 export function RequestConsole() {
 
@@ -89,7 +90,7 @@ export function RequestConsole() {
             </div>
 
             <Table responsive="lg" striped bordered hover>
-                <thead className="text-center">
+                <thead className="text-center align-middle">
                     <tr>
                         {tHeads.map((headings) => (
                             <th>{headings}</th>
@@ -99,7 +100,7 @@ export function RequestConsole() {
                 <tbody>
 
                     {requestData.map((data) => (
-                        <tr key={data.requestId}>
+                        <tr key={data.requestId} className="text-center align-middle">
                             <td>{data.requestId}</td>
                             <td>{data.userId}</td>
                             <td>{data.itemName}</td>
@@ -109,8 +110,8 @@ export function RequestConsole() {
                             <td>{data.itemStatus}</td>
                             <td>{data.status}</td>
 
-                            <td className='d-flex justify-content-center'>
-                                <div className='d-flex gap-2'>
+                            <td className={styles.actions}>
+                                <div className={styles.actionButtons}>
                                     <Button variant="outline-success" onClick={() => handleEdit(data)}>Edit</Button>
                                     <Button variant="outline-danger" onClick={() => handleDelete(data.requestId)}>Delete</Button>
                                 </div>

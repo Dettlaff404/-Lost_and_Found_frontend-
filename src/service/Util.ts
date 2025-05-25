@@ -1,12 +1,11 @@
+import moment from 'moment';
+
 const formatDate = (dateString: string) => {
-    try {
-        const date = new Date(dateString);
-        return date.toISOString().slice(0, 10);
-    } catch (error) {
-        console.error("Error parsing date:", error);
-        return "";
+    const date = moment(dateString);
+    if (!date.isValid()) {
+        return "Invalid date";
     }
-  
+    return date.format('YYYY-MM-DD');
 };
 
 

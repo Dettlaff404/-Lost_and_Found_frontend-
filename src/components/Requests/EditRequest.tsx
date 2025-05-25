@@ -46,8 +46,8 @@ function EditRequest({ show, selectedRow, handleClose, handleUpdate, updateReque
     }, [selectedRow]);
 
     //add request data from the form
-    const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setRequest({...request, [e.target.name]: e.target.value });
+    const handleOnChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+        setRequest({ ...request, [e.target.name]: e.target.value });
     }
 
     //handle the save/update
@@ -88,8 +88,24 @@ function EditRequest({ show, selectedRow, handleClose, handleUpdate, updateReque
                     {renderFloatingLabel("Description", "description")}
                     {renderFloatingLabel("Location", "location")}
                     {renderFloatingLabel("Date", "date", "date")}
-                    {renderFloatingLabel("Item Status", "itemStatus")}
-                    {renderFloatingLabel("Request Status", "status")}
+
+                    <Form.Group className="mb-3" controlId="formBasicEmail">
+                        <Form.Label>Item Status</Form.Label>
+                        <Form.Select name='itemStatus' value={request.itemStatus} onChange={handleOnChange}>
+                            <option value="LOST">LOST</option>
+                            <option value="FOUND">FOUND</option>
+                        </Form.Select>
+                    </Form.Group>
+
+                    <Form.Group className="mb-3" controlId="formBasicEmail"> 
+                        <Form.Label>Request Status</Form.Label>
+                        <Form.Select name='status' value={request.status} onChange={handleOnChange}>
+                            <option value="PENDING">PENDING</option>
+                            <option value="REJECTED">REJECTED</option>
+                            <option value="APPROVED">APPROVED</option>
+                        </Form.Select>
+                    </Form.Group>
+
                 </Form>
             </Modal.Body>
             <Modal.Footer>
