@@ -1,14 +1,29 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import Button from 'react-bootstrap/Button';
 import Table from 'react-bootstrap/Table';
 import { GetRequests } from '../service/RequestData';
 
 export function RequestConsole() {
+
+    interface Request {
+        requestId: string;
+        userId: string;
+        itemName: string;
+        description: string;
+        location: string;
+        date: string;
+        itemStatus: string;
+        status: string;
+    }
+
+    const [requestData, setRequestData] = useState<Request[]>([]);
 
     //Loading Data
     useEffect(() => {
         const loadData = async () => {
             const reqDetails = await GetRequests()
             console.log(reqDetails)
+            setRequestData(reqDetails)
         }
         loadData();
     }, []);
@@ -22,12 +37,13 @@ export function RequestConsole() {
         "Date", 
         "Item Status", 
         "Request Status", 
+        "Action"
     ];
 
     return (
         <>
-            <Table responsive="md" striped bordered hover>
-                <thead>
+            <Table responsive="lg" striped bordered hover>
+                <thead className="text-center">
                     <tr>
                         {tHeads.map((headings) => (
                             <th>{headings}</th>
@@ -35,42 +51,27 @@ export function RequestConsole() {
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>2</td>
-                        <td>Jacob</td>
-                        <td>Thornton</td>
-                        <td>@fat</td>
-                        <td>@fat</td>
-                        <td>@fat</td>
-                        <td>@fat</td>
-                    </tr>
-                    <tr>
-                        <td>2</td>
-                        <td>Jacob</td>
-                        <td>Thornton</td>
-                        <td>@fat</td>
-                        <td>@fat</td>
-                        <td>@fat</td>
-                        <td>@fat</td>
-                    </tr>
-                    <tr>
-                        <td>2</td>
-                        <td>Jacob</td>
-                        <td>Thornton</td>
-                        <td>@fat</td>
-                        <td>@fat</td>
-                        <td>@fat</td>
-                        <td>@fat</td>
-                    </tr>
-                    <tr>
-                        <td>2</td>
-                        <td>Jacob</td>
-                        <td>Thornton</td>
-                        <td>@fat</td>
-                        <td>@fat</td>
-                        <td>@fat</td>
-                        <td>@fat</td>
-                    </tr>
+
+                    {requestData.map((data) => (
+                        <tr key={data.requestId}>
+                            <td>{data.requestId}</td>
+                            <td>{data.userId}</td>
+                            <td>{data.itemName}</td>
+                            <td>{data.description}</td>
+                            <td>{data.location}</td>
+                            <td>{data.date}</td>
+                            <td>{data.itemStatus}</td>
+                            <td>{data.status}</td>
+
+                            <td className='d-flex justify-content-center'>
+                                <div className='d-flex gap-2'>
+                                    <Button variant="outline-success">Edit</Button>
+                                    <Button variant="outline-danger">Delete</Button>
+                                </div>
+                            </td>
+
+                        </tr>
+                    ))}
                 </tbody>
             </Table>
         </>
