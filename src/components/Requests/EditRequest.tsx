@@ -4,6 +4,7 @@ import FloatingLabel from 'react-bootstrap/FloatingLabel';
 import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
 import { formatDate } from '../../service/Util';
+import { UpdateRequest } from '../../service/RequestData';
 
 interface ReqEditProps {
     show: boolean;
@@ -50,9 +51,14 @@ function EditRequest({ show, selectedRow, handleClose, handleUpdate }: ReqEditPr
     }
 
     //handle the save/update
-    const handleSave = () => {
-        console.log("Updated request:", request);
-        alert("Saved");
+    const handleSave = async () => {
+        try {
+            const updatedRequest = await UpdateRequest(request);
+            handleUpdate(updatedRequest);
+            handleClose();
+        } catch (error) {
+            console.error("Failed to Update request", error)
+        }
     }
 
     //handle repeat of floating label
@@ -83,7 +89,7 @@ function EditRequest({ show, selectedRow, handleClose, handleUpdate }: ReqEditPr
                     {renderFloatingLabel("Location", "location")}
                     {renderFloatingLabel("Date", "date", "date")}
                     {renderFloatingLabel("Item Status", "itemStatus")}
-                    {renderFloatingLabel("Request Status", "status", "text", true)}
+                    {renderFloatingLabel("Request Status", "status")}
                 </Form>
             </Modal.Body>
             <Modal.Footer>

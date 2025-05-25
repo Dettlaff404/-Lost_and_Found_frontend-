@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Table from 'react-bootstrap/Table';
-import { GetRequests } from '../../service/RequestData';
+import { DeleteRequest, GetRequests } from '../../service/RequestData';
 import EditRequest from './EditRequest';
 import { formatDate } from '../../service/Util';
 
@@ -57,8 +57,20 @@ export function RequestConsole() {
     }
 
     const handleUpdate = (updatedRequest: Request) => {
-        alert("Request updated successfully");
-        console.log("Updated request:", updatedRequest);
+        const updatedRequests = requestData.map((request) => 
+            request.requestId === updatedRequest.requestId ? updatedRequest : request
+        );
+        setRequestData(updatedRequests);
+    }
+
+    //handle delete function
+    const handleDelete = async (requestId: string) => {
+        try {
+            await DeleteRequest(requestId);
+            setRequestData(requestData.filter((request) => request.requestId !== requestId));
+        } catch (error) {
+            console.error("Failed to delete book", error)   
+        }
     }
 
     return (
@@ -87,7 +99,7 @@ export function RequestConsole() {
                             <td className='d-flex justify-content-center'>
                                 <div className='d-flex gap-2'>
                                     <Button variant="outline-success" onClick={() => handleEdit(data)}>Edit</Button>
-                                    <Button variant="outline-danger">Delete</Button>
+                                    <Button variant="outline-danger" onClick={() => handleDelete(data.requestId)}>Delete</Button>
                                 </div>
                             </td>
 
