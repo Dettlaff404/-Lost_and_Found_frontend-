@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Table from 'react-bootstrap/Table';
-import { GetRequests } from '../service/RequestData';
+import { GetRequests } from '../../service/RequestData';
+import EditRequest from './EditRequest';
+import { formatDate } from '../../service/Util';
 
 export function RequestConsole() {
 
@@ -17,6 +19,8 @@ export function RequestConsole() {
     }
 
     const [requestData, setRequestData] = useState<Request[]>([]);
+    const [selectedRow, setSelectedRow] = useState<Request | null>(null);
+    const [showEditRequest, setShowEditRequest] = useState(false);
 
     //Loading Data
     useEffect(() => {
@@ -40,6 +44,23 @@ export function RequestConsole() {
         "Action"
     ];
 
+    // Handle edit function
+    const handleEdit = (data: Request) => {
+        console.log("Edit clicked for row:", data);
+        setSelectedRow(data);
+        setShowEditRequest(true);
+    };
+
+    const handleClose = () => {
+        setShowEditRequest(false);
+        setSelectedRow(null);
+    }
+
+    const handleUpdate = (updatedRequest: Request) => {
+        alert("Request updated successfully");
+        console.log("Updated request:", updatedRequest);
+    }
+
     return (
         <>
             <Table responsive="lg" striped bordered hover>
@@ -59,13 +80,13 @@ export function RequestConsole() {
                             <td>{data.itemName}</td>
                             <td>{data.description}</td>
                             <td>{data.location}</td>
-                            <td>{data.date}</td>
+                            <td>{formatDate(data.date)}</td>
                             <td>{data.itemStatus}</td>
                             <td>{data.status}</td>
 
                             <td className='d-flex justify-content-center'>
                                 <div className='d-flex gap-2'>
-                                    <Button variant="outline-success">Edit</Button>
+                                    <Button variant="outline-success" onClick={() => handleEdit(data)}>Edit</Button>
                                     <Button variant="outline-danger">Delete</Button>
                                 </div>
                             </td>
@@ -74,6 +95,14 @@ export function RequestConsole() {
                     ))}
                 </tbody>
             </Table>
+                
+            <EditRequest
+                show={showEditRequest}
+                selectedRow={selectedRow}
+                handleClose={handleClose}
+                handleUpdate={handleUpdate}
+            />
+
         </>
     );
 }
