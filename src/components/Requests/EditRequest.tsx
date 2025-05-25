@@ -4,13 +4,13 @@ import FloatingLabel from 'react-bootstrap/FloatingLabel';
 import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
 import { formatDate } from '../../service/Util';
-import { UpdateRequest } from '../../service/RequestData';
 
 interface ReqEditProps {
     show: boolean;
     selectedRow: Request | null;
     handleClose: () => void;
-    handleUpdate: (updatedRequest: Request) => void
+    handleUpdate: (updatedRequest: Request) => void;
+    updateRequests: (request: Request) => Promise<void>;
 }
 
 interface Request {
@@ -24,7 +24,7 @@ interface Request {
         status: string;
     }
 
-function EditRequest({ show, selectedRow, handleClose, handleUpdate }: ReqEditProps) {
+function EditRequest({ show, selectedRow, handleClose, handleUpdate, updateRequests }: ReqEditProps) {
 
     //state management
     const [request, setRequest] = useState<Request>({
@@ -53,8 +53,8 @@ function EditRequest({ show, selectedRow, handleClose, handleUpdate }: ReqEditPr
     //handle the save/update
     const handleSave = async () => {
         try {
-            const updatedRequest = await UpdateRequest(request);
-            handleUpdate(updatedRequest);
+            await updateRequests(request);
+            handleUpdate(request);
             handleClose();
         } catch (error) {
             console.error("Failed to Update request", error)

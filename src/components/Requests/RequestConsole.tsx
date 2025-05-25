@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Table from 'react-bootstrap/Table';
-import { DeleteRequest, GetRequests } from '../../service/RequestData';
+import { DeleteRequest, GetRequests, UpdateRequest, AddRequestData } from '../../service/RequestData';
 import EditRequest from './EditRequest';
 import { formatDate } from '../../service/Util';
+import AddRequest from './AddRequest';
 
 export function RequestConsole() {
 
@@ -21,12 +22,14 @@ export function RequestConsole() {
     const [requestData, setRequestData] = useState<Request[]>([]);
     const [selectedRow, setSelectedRow] = useState<Request | null>(null);
     const [showEditRequest, setShowEditRequest] = useState(false);
+    const [showAddRequest, setShowAddRequest] = useState(false);
 
     //Loading Data
     useEffect(() => {
         const loadData = async () => {
             const reqDetails = await GetRequests()
-            console.log(reqDetails)
+            //sort the data based on date in Ascending order
+            reqDetails.sort((a: Request, b: Request) => new Date(a.date).getTime() - new Date(b.date).getTime());
             setRequestData(reqDetails)
         }
         loadData();
@@ -73,8 +76,18 @@ export function RequestConsole() {
         }
     }
 
+    //handle add function
+    const handleAdd = (newRequest: Request) => {
+        setRequestData((requestData) => [...requestData, newRequest]);
+    }
+
     return (
         <>
+
+            <div className='d-flex justify-content-end p-3'>
+                <Button variant="outline-primary" onClick={() => setShowAddRequest(true)}>Add</Button>
+            </div>
+
             <Table responsive="lg" striped bordered hover>
                 <thead className="text-center">
                     <tr>
@@ -113,6 +126,14 @@ export function RequestConsole() {
                 selectedRow={selectedRow}
                 handleClose={handleClose}
                 handleUpdate={handleUpdate}
+                updateRequests={UpdateRequest}
+            />
+
+            <AddRequest
+                show={showAddRequest}
+                handleClose={() => setShowAddRequest(false)}
+                handleAdd={handleAdd}
+                addRequest={AddRequestData}
             />
 
         </>

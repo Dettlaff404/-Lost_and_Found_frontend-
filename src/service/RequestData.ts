@@ -20,6 +20,7 @@ const UpdateRequest = async(request: any) => {
             `${baseURL}?requestId=${request.requestId}`,
             request
         );
+        console.log(response.data)
         return response.data
     } catch (error) {
         console.error("Failed to Update request", error)
@@ -40,4 +41,22 @@ const DeleteRequest = async(requestId: string) => {
     }
 }
 
-export { GetRequests, UpdateRequest, DeleteRequest }
+const AddRequestData = async(request: any) => {
+    //Create the request
+    request.requestId = "";
+    request.status = "PENDING";
+    console.log(request)
+    try {
+        const response = await axios.post(
+            baseURL,
+            request
+        );
+        console.log(response.data)
+        return response.data
+    } catch (error) {
+        console.error("Failed to Add Request", error)
+        throw error   
+    }
+}
+
+export { GetRequests, UpdateRequest, DeleteRequest, AddRequestData };
