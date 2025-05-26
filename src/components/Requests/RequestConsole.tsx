@@ -73,7 +73,7 @@ export function RequestConsole() {
             await DeleteRequest(requestId);
             setRequestData(requestData.filter((request) => request.requestId !== requestId));
         } catch (error) {
-            console.error("Failed to delete book", error)   
+            console.error("Failed to delete request", error)   
         }
     }
 

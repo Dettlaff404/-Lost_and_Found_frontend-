@@ -8,7 +8,7 @@ const GetRequests = async() => {
         const response = await axios.get(`${baseURL}/getallrequests`)
         return response.data
     } catch (error) {
-        console.error("Failed to get books", error)
+        console.error("Failed to get Requests", error)
         throw error   
     }
 }
