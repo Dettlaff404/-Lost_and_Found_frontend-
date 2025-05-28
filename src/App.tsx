@@ -6,19 +6,19 @@ import { UserConsole } from './components/Users/UserConsole';
 import { ItemConsole } from './components/Items/ItemConsole';
 import { BrowserRouter, Route, Routes } from 'react-router';
 import NotFound from './components/Common/NotFound';
-import { ItemTypeProvider } from './components/NavBar/ItemTypeContext'; // Import the provider
+import { ItemTypeProvider } from './components/NavBar/ItemTypeContext'; 
+import { SignIn } from './components/Auth/SignIn';
+import { SignUp } from './components/Auth/SignUp';
 
 function App() {
   return (
-    <ItemTypeProvider> {/* Wrap entire app inside the provider */}
+    <ItemTypeProvider>
       <BrowserRouter>
         <NavB/>
           <Routes>
-            <Route path='/' element={
-              <>
-                <RequestConsole />
-                <ItemConsole />
-              </>}/>
+            <Route path='/' element={<SignIn/>}/>
+            <Route path='/signin' element={<SignIn/>}/>
+            <Route path='/signup' element={<SignUp/>}/>
             <Route path='/requests' element={
               <>
                 <RequestConsole />

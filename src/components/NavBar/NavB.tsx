@@ -23,6 +23,10 @@ function NavB() {
         <Container>
           <Navbar.Brand as={NavLink} to="/requests" onClick={() => handleItemTypeClick("ALL")} className={styles.navbar_logo}>- Lost & Found Portal -</Navbar.Brand>
           <Nav className="justify-content-end">
+
+            <Nav.Link as={NavLink} to="/signin">SignIn</Nav.Link>
+            <Nav.Link as={NavLink} to="/signup">SignUp</Nav.Link>
+
             <Nav.Link as={NavLink} to="/requests" onClick={() => handleItemTypeClick("ALL")}>Requests</Nav.Link>
 
             <NavDropdown title="Items" id="basic-nav-dropdown">
