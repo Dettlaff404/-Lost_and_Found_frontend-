@@ -5,6 +5,7 @@ import styles from './userstyle.module.css'
 import { AddUserData, DeleteUser, GetUsers, UpdateUser } from '../../service/UserData';
 import EditUser from './EditUser';
 import AddUser from './AddUser';
+import { useLocation } from 'react-router';
 
 export function UserConsole() {
 
@@ -74,9 +75,14 @@ export function UserConsole() {
         setUserData((userData) => [...userData, newUser]);
     }
 
+    //page title
+    const location = useLocation();
+    const routeName = location.pathname.split("/").filter(Boolean).pop() || "Request";
+    const formatedTitle = routeName.charAt(0).toUpperCase() + routeName.slice(1) + " List";
+
     return (
         <>
-
+            <h1 className={styles.userTitle}>{formatedTitle}</h1>
             <div className='d-flex justify-content-end p-3'>
                 <Button variant="outline-primary" onClick={() => setShowAddUser(true)}>Register New User</Button>
             </div>

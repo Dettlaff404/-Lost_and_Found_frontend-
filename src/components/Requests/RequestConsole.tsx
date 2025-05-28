@@ -6,6 +6,7 @@ import EditRequest from './EditRequest';
 import { formatDate } from '../../service/Util';
 import AddRequest from './AddRequest';
 import styles from './requeststyle.module.css'
+import { useLocation } from 'react-router';
 
 export function RequestConsole() {
 
@@ -82,8 +83,14 @@ export function RequestConsole() {
         setRequestData((requestData) => [...requestData, newRequest]);
     }
 
+    //page title
+    const location = useLocation();
+    const routeName = location.pathname.split("/").filter(Boolean).pop() || "Request";
+    const formatedTitle = routeName.charAt(0).toUpperCase() + routeName.slice(1) + " List";
+
     return (
         <>
+            <h1 className={styles.requestTitle}>{formatedTitle}</h1>
 
             <div className='d-flex justify-content-end p-3'>
                 <Button variant="outline-primary" onClick={() => setShowAddRequest(true)}>Add</Button>

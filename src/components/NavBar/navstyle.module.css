@@ -3,3 +3,14 @@
   font-weight: bold;
   font-size: 24px;
 }
+
+.dropdown{
+  background-color: #212529 !important;
+  color: white !important;
+}
+
+.dropdown:hover{
+  background-color: #343a40 !important; 
+  color: white !important;
+  font-weight: bold !important;
+}

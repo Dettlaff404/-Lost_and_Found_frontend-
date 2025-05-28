@@ -4,7 +4,7 @@ import Table from 'react-bootstrap/Table';
 import { formatDate } from '../../service/Util';
 import styles from './itemstyle.module.css'
 import { DeleteItem, GetItems, UpdateItem } from '../../service/ItemData';
-import useItemType from '../NavBar/UseItemType';
+import { useItemType } from "../NavBar/ItemTypeContext";
 import EditItem from './EditItem';
 
 export function ItemConsole() {
@@ -23,27 +23,29 @@ export function ItemConsole() {
     const [itemData, setItemData] = useState<Item[]>([]);
     const [selectedRow, setSelectedRow] = useState<Item | null>(null);
     const [showEditItem, setShowEditItem] = useState(false);
-    const itemType = useItemType("get");
+    const { selectedItemType } = useItemType();
 
-    //Loading Data
+    // Loading Data
     useEffect(() => {
-        const loadData = async () => {
-            const itmDetails = await GetItems()
-            //sort the data based on date in Ascending order
-            itmDetails.sort((a: Item, b: Item) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    const loadData = async () => {
+        const itmDetails = await GetItems()
+        // sort the data based on date in Ascending order
+        itmDetails.sort((a: Item, b: Item) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
-            //Data Selection
-            if (itemType === "ALL") {
-                setItemData(itmDetails)
-            } else{
-                setItemData(itmDetails.filter((item: Item) => item.status === itemType));
-            }
+        // console.log("Item Console Item Type :", selectedItemType);
+
+        // Data Selection
+        if (selectedItemType === "ALL") {
+        setItemData(itmDetails)
+        } else {
+        setItemData(itmDetails.filter((item: Item) => item.status === selectedItemType));
         }
-        loadData();
-    }, [itemType]);
+    }
+    loadData();
+    }, [selectedItemType]);
 
     const getTHeads = () =>{
-        if (itemType === "ALL") {
+        if (selectedItemType === "ALL") {
             return [
                 "Item ID",
                 "Request ID",
@@ -99,8 +101,12 @@ export function ItemConsole() {
         }
     }
 
+    //page title
+    const formatedTitle = selectedItemType === "ALL" ? "Items List" : selectedItemType + " Items List";
+
     return (
         <>
+            <h1 className={styles.itemTitle}>{formatedTitle}</h1>
             <Table responsive="lg" striped bordered hover>
                 <thead className="text-center align-middle">
                     <tr>
