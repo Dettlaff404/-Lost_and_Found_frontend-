@@ -3,7 +3,7 @@ import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import { FaEye, FaEyeSlash, FaEnvelope, FaLock } from "react-icons/fa";
 import { SignInTask } from "../../service/Auth";
-import { NavLink } from "react-router";
+import { NavLink, useNavigate } from "react-router";
 import styles from "./signstyle.module.css";
 import { useAuth } from "./AuthProvider";
 
@@ -14,6 +14,7 @@ export const SignIn = () => {
     }
 
     const { login } = useAuth();
+    const navigate = useNavigate();
 
     const [user, setUser] = useState<SignIn>({
         email: "",
@@ -51,6 +52,7 @@ export const SignIn = () => {
             login(token);
             console.log(token);
             setUser({ email: "", password: "" });
+            navigate('/requests');
         } catch (error) {
             console.error("Sign in failed:", error);
         } finally {

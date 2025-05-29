@@ -7,6 +7,7 @@ import { formatDate } from '../../service/Util';
 import AddRequest from './AddRequest';
 import styles from './requeststyle.module.css'
 import { useLocation } from 'react-router';
+import { useAuth } from '../Auth/AuthProvider';
 
 export function RequestConsole() {
 
@@ -26,6 +27,9 @@ export function RequestConsole() {
     const [showEditRequest, setShowEditRequest] = useState(false);
     const [showAddRequest, setShowAddRequest] = useState(false);
 
+    // Get user role from auth context
+    const { userRole } = useAuth();
+
     //Loading Data
     useEffect(() => {
         const loadData = async () => {
@@ -37,17 +41,27 @@ export function RequestConsole() {
         loadData();
     }, []);
 
-    const tHeads: string[] = [
-        "Request ID",
-        "User ID",
-        "Item Name", 
-        "Description", 
-        "Location", 
-        "Date", 
-        "Item Status", 
-        "Request Status", 
-        "Action"
-    ];
+    // Define table headers based on user role
+    const tHeads: string[] = userRole === 'ROLE_USER' 
+        ? [
+            "Item Name", 
+            "Description", 
+            "Location", 
+            "Date", 
+            "Item Status", 
+            "Request Status"
+        ]
+        : [
+            "Request ID",
+            "User ID",
+            "Item Name", 
+            "Description", 
+            "Location", 
+            "Date", 
+            "Item Status", 
+            "Request Status", 
+            "Action"
+        ];
 
     // Handle edit function
     const handleEdit = (data: Request) => {
@@ -99,17 +113,17 @@ export function RequestConsole() {
             <Table responsive="lg" striped bordered hover>
                 <thead className="text-center align-middle">
                     <tr>
-                        {tHeads.map((headings) => (
-                            <th>{headings}</th>
+                        {tHeads.map((headings, index) => (
+                            <th key={index}>{headings}</th>
                         ))}
                     </tr>
                 </thead>
                 <tbody>
-
                     {requestData.map((data) => (
                         <tr key={data.requestId} className="text-center align-middle">
-                            <td>{data.requestId}</td>
-                            <td>{data.userId}</td>
+                            {/* Conditionally render table cells based on user role */}
+                            {userRole !== 'ROLE_USER' && <td>{data.requestId}</td>}
+                            {userRole !== 'ROLE_USER' && <td>{data.userId}</td>}
                             <td>{data.itemName}</td>
                             <td>{data.description}</td>
                             <td>{data.location}</td>
@@ -117,13 +131,14 @@ export function RequestConsole() {
                             <td>{data.itemStatus}</td>
                             <td>{data.status}</td>
 
-                            <td className={styles.actions}>
-                                <div className={styles.actionButtons}>
-                                    <Button variant="outline-success" onClick={() => handleEdit(data)}>Edit</Button>
-                                    <Button variant="outline-danger" onClick={() => handleDelete(data.requestId)}>Delete</Button>
-                                </div>
-                            </td>
-
+                            {userRole !== 'ROLE_USER' && (
+                                <td className={styles.actions}>
+                                    <div className={styles.actionButtons}>
+                                        <Button variant="outline-success" onClick={() => handleEdit(data)}>Edit</Button>
+                                        <Button variant="outline-danger" onClick={() => handleDelete(data.requestId)}>Delete</Button>
+                                    </div>
+                                </td>
+                            )}
                         </tr>
                     ))}
                 </tbody>

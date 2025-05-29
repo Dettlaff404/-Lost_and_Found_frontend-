@@ -10,7 +10,6 @@ const fetchToken = () => {
 const GetRequests = async() => {
     //get the requests
     try {
-        console.log(fetchToken())
         const response = await axios.get(`${baseURL}/getallrequests`,
         {
             headers: {

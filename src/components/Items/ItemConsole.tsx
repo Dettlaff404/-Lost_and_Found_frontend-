@@ -6,8 +6,11 @@ import styles from './itemstyle.module.css'
 import { DeleteItem, GetItems, UpdateItem } from '../../service/ItemData';
 import { useItemType } from "../NavBar/ItemTypeContext";
 import EditItem from './EditItem';
+import { useAuth } from '../Auth/AuthProvider';
 
 export function ItemConsole() {
+    // Get user role from auth context
+    const { userRole } = useAuth();
 
     interface Item {
         itemId: string;
@@ -27,50 +30,140 @@ export function ItemConsole() {
 
     // Loading Data
     useEffect(() => {
-    const loadData = async () => {
-        const itmDetails = await GetItems()
-        // sort the data based on date in Ascending order
-        itmDetails.sort((a: Item, b: Item) => new Date(a.date).getTime() - new Date(b.date).getTime());
+        const loadData = async () => {
+            const itmDetails = await GetItems()
+            // sort the data based on date in Ascending order
+            itmDetails.sort((a: Item, b: Item) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
-        // console.log("Item Console Item Type :", selectedItemType);
-
-        // Data Selection
-        if (selectedItemType === "ALL") {
-        setItemData(itmDetails)
-        } else {
-        setItemData(itmDetails.filter((item: Item) => item.status === selectedItemType));
+            // Data Selection
+            if (selectedItemType === "ALL") {
+                setItemData(itmDetails)
+            } else {
+                setItemData(itmDetails.filter((item: Item) => item.status === selectedItemType));
+            }
         }
-    }
-    loadData();
+        loadData();
     }, [selectedItemType]);
 
-    const getTHeads = () =>{
-        if (selectedItemType === "ALL") {
-            return [
-                "Item ID",
-                "Request ID",
-                "Claimed User ID",
-                "Item Name",
-                "Description",
-                "Location",
-                "Date",
-                "Status",
-                "Action"
-            ];
+    // Dynamic table headers based on user role and item type
+    const getTableHeaders = (): string[] => {
+        if (userRole === 'ROLE_USER') {
+            if (selectedItemType === 'CLAIMED') {
+                return [
+                    "Item Name",
+                    "Claimed User ID",
+                    "Description",
+                    "Location",
+                    "Date",
+                    "Status"
+                ];
+            } else {
+                return [
+                    "Item Name",
+                    "Description",
+                    "Location",
+                    "Date",
+                    "Status"
+                ];
+            }
         } else {
-            return [
-                "Item ID",
-                "Item Name",
-                "Description",
-                "Location",
-                "Date",
-                "Status",
-                "Action"
-            ];
+            // For non-user roles (ADMIN, STAFF, etc.)
+            if (selectedItemType === 'CLAIMED' || selectedItemType === 'ALL') {
+                return [
+                    "Item ID",
+                    "Request ID",
+                    "Claimed User ID",
+                    "Item Name",
+                    "Description",
+                    "Location",
+                    "Date",
+                    "Status",
+                    "Action"
+                ];
+            } else {
+                return [
+                    "Item ID",
+                    "Request ID",
+                    "Item Name",
+                    "Description",
+                    "Location",
+                    "Date",
+                    "Status",
+                    "Action"
+                ];
+            }
         }
-    }
+    };
 
-    const tHeads = getTHeads();
+    const tHeads = getTableHeaders();
+
+    // Render table cells based on user role and item type
+    const renderTableCells = (data: Item) => {
+        if (userRole === 'ROLE_USER') {
+            if (selectedItemType === 'CLAIMED') {
+                return (
+                    <>
+                        <td>{data.itemName}</td>
+                        <td>{data.claimedUserId}</td>
+                        <td>{data.description}</td>
+                        <td>{data.location}</td>
+                        <td>{formatDate(data.date)}</td>
+                        <td>{data.status}</td>
+                    </>
+                );
+            } else {
+                return (
+                    <>
+                        <td>{data.itemName}</td>
+                        <td>{data.description}</td>
+                        <td>{data.location}</td>
+                        <td>{formatDate(data.date)}</td>
+                        <td>{data.status}</td>
+                    </>
+                );
+            }
+        } else {
+            // For non-user roles (ADMIN, STAFF, etc.)
+            if (selectedItemType === 'CLAIMED' || selectedItemType === 'ALL') {
+                return (
+                    <>
+                        <td>{data.itemId}</td>
+                        <td>{data.requestId}</td>
+                        <td>{data.claimedUserId}</td>
+                        <td>{data.itemName}</td>
+                        <td>{data.description}</td>
+                        <td>{data.location}</td>
+                        <td>{formatDate(data.date)}</td>
+                        <td>{data.status}</td>
+                        <td className={styles.actions}>
+                            <div className={styles.actionButtons}>
+                                <Button variant="outline-success" onClick={() => handleEdit(data)}>Edit</Button>
+                                <Button variant="outline-danger" onClick={() => handleDelete(data.itemId)}>Delete</Button>
+                            </div>
+                        </td>
+                    </>
+                );
+            } else {
+                return (
+                    <>
+                        <td>{data.itemId}</td>
+                        <td>{data.requestId}</td>
+                        <td>{data.itemName}</td>
+                        <td>{data.description}</td>
+                        <td>{data.location}</td>
+                        <td>{formatDate(data.date)}</td>
+                        <td>{data.status}</td>
+                        <td className={styles.actions}>
+                            <div className={styles.actionButtons}>
+                                <Button variant="outline-success" onClick={() => handleEdit(data)}>Edit</Button>
+                                <Button variant="outline-danger" onClick={() => handleDelete(data.itemId)}>Delete</Button>
+                            </div>
+                        </td>
+                    </>
+                );
+            }
+        }
+    };
 
     // Handle edit function
     const handleEdit = (data: Item) => {
@@ -91,7 +184,7 @@ export function ItemConsole() {
         setItemData(updatedItems);
     }
 
-    //handle delete function
+    // Handle delete function - Fixed to use itemId instead of requestId
     const handleDelete = async (itemId: string) => {
         try {
             await DeleteItem(itemId);
@@ -101,7 +194,7 @@ export function ItemConsole() {
         }
     }
 
-    //page title
+    // Page title
     const formatedTitle = selectedItemType === "ALL" ? "Items List" : selectedItemType + " Items List";
 
     return (
@@ -110,43 +203,30 @@ export function ItemConsole() {
             <Table responsive="lg" striped bordered hover>
                 <thead className="text-center align-middle">
                     <tr>
-                        {tHeads.map((headings) => (
-                            <th>{headings}</th>
+                        {tHeads.map((heading, index) => (
+                            <th key={index}>{heading}</th>
                         ))}
                     </tr>
                 </thead>
                 <tbody>
-
                     {itemData.map((data) => (
                         <tr key={data.itemId} className="text-center align-middle">
-                            <td>{data.itemId}</td>
-                            <td>{data.requestId}</td>
-                            <td>{data.claimedUserId}</td>
-                            <td>{data.itemName}</td>
-                            <td>{data.description}</td>
-                            <td>{data.location}</td>
-                            <td>{formatDate(data.date)}</td>
-                            <td>{data.status}</td>
-
-                            <td className={styles.actions}>
-                                <div className={styles.actionButtons}>
-                                    <Button variant="outline-success" onClick={() => handleEdit(data)}>Edit</Button>
-                                    <Button variant="outline-danger" onClick={() => handleDelete(data.requestId)}>Delete</Button>
-                                </div>
-                            </td>
-
+                            {renderTableCells(data)}
                         </tr>
                     ))}
                 </tbody>
             </Table>
                 
-            <EditItem
-                show={showEditItem}
-                selectedRow={selectedRow}
-                handleClose={handleClose}
-                handleUpdate={handleUpdate}
-                updateItems={UpdateItem}
-            />
+            {/* Only show EditItem modal for non-user roles */}
+            {userRole !== 'ROLE_USER' && (
+                <EditItem
+                    show={showEditItem}
+                    selectedRow={selectedRow}
+                    handleClose={handleClose}
+                    handleUpdate={handleUpdate}
+                    updateItems={UpdateItem}
+                />
+            )}
         </>
     );
 }
