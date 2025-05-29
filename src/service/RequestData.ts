@@ -2,10 +2,22 @@ import axios from "axios"
 
 const baseURL = "http://localhost:8085/lostandfound/api/v1/requests"
 
+const fetchToken = () => {
+    const token = localStorage.getItem("lofToken");
+    return "Bearer " + token
+}
+
 const GetRequests = async() => {
     //get the requests
     try {
-        const response = await axios.get(`${baseURL}/getallrequests`)
+        console.log(fetchToken())
+        const response = await axios.get(`${baseURL}/getallrequests`,
+        {
+            headers: {
+                Authorization: fetchToken()
+            }
+        }
+        );
         return response.data
     } catch (error) {
         console.error("Failed to get Requests", error)
@@ -18,7 +30,12 @@ const UpdateRequest = async(request: any) => {
     try {
         const response = await axios.patch(
             `${baseURL}?requestId=${request.requestId}`,
-            request
+            request,
+            {
+                headers: {
+                    Authorization: fetchToken()
+                }
+            }
         );
         console.log(response.data)
         return response.data
@@ -32,7 +49,12 @@ const DeleteRequest = async(requestId: string) => {
     //delete the request
     try {
         const response = await axios.delete(
-            `${baseURL}?requestId=${requestId}`
+            `${baseURL}?requestId=${requestId}`,
+            {
+                headers: {
+                    Authorization: fetchToken()
+                }
+            }
         );
         return response.data
     } catch (error) {
@@ -49,7 +71,12 @@ const AddRequestData = async(request: any) => {
     try {
         const response = await axios.post(
             baseURL,
-            request
+            request,
+            {
+                headers: {
+                    Authorization: fetchToken()
+                }
+            }
         );
         console.log(response.data)
         return response.data

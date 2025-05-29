@@ -20,7 +20,7 @@ function AddRequest({ show, handleClose, handleAdd, addRequest }: any) {
     //state management
     const [newRequest, setNewRequest] = useState<Request>({
         requestId: '',
-        userId: '',
+        userId: (localStorage.getItem('lofUserId') as string),
         itemName: '',
         description: '',
         location: '',
@@ -38,13 +38,14 @@ function AddRequest({ show, handleClose, handleAdd, addRequest }: any) {
     //handle the add book process with the back-end
     const handleOnSubmit = async () => {
         try {
+            console.log(newRequest)
             const newRequestDetails = await addRequest(newRequest);
             handleAdd(newRequestDetails)
             handleClose()
 
             setNewRequest({
                 requestId: '',
-                userId: '',
+                userId: (localStorage.getItem('lofUserId') as string),
                 itemName: '',
                 description: '',
                 location: '',
@@ -77,7 +78,7 @@ function AddRequest({ show, handleClose, handleAdd, addRequest }: any) {
             <Modal.Body>
                 {/* Form */}
                 <Form>
-                    {createFormElement("User ID", "userId")}   {/*should be replaced with user id derived from the token*/}
+                    {/* {createFormElement("User ID", "userId")}   should be replaced with user id derived from the token */}
                     {createFormElement("Item Name", "itemName")}
                     {createFormElement("Description", "description")}
                     {createFormElement("Location", "location")}

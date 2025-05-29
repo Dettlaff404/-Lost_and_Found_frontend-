@@ -2,10 +2,21 @@ import axios from "axios"
 
 const baseURL = "http://localhost:8085/lostandfound/api/v1/users"
 
+const fetchToken = () => {
+    const token = localStorage.getItem("lofToken");
+    return "Bearer " + token
+}
+
 const GetUsers = async() => {
     //get the users
     try {
-        const response = await axios.get(`${baseURL}/getallusers`)
+        const response = await axios.get(`${baseURL}/getallusers`,
+        {
+            headers: {
+                Authorization: fetchToken()
+            }
+        }
+        )
         return response.data
     } catch (error) {
         console.error("Failed to get users", error)
@@ -18,7 +29,12 @@ const UpdateUser = async(user: any) => {
     try {
         const response = await axios.patch(
             `${baseURL}?userId=${user.userId}`,
-            user
+            user,
+            {
+                headers: {
+                    Authorization: fetchToken()
+                }
+            }
         );
         console.log(response.data)
         return response.data
@@ -32,7 +48,12 @@ const DeleteUser = async(userId: string) => {
     //delete the user
     try {
         const response = await axios.delete(
-            `${baseURL}?userId=${userId}`
+            `${baseURL}?userId=${userId}`,
+            {
+                headers: {
+                    Authorization: fetchToken()
+                }
+            }
         );
         return response.data
     } catch (error) {
@@ -48,7 +69,12 @@ const AddUserData = async(user: any) => {
     try {
         const response = await axios.post(
             baseURL,
-            user
+            user,
+            {
+                headers: {
+                    Authorization: fetchToken()
+                }
+            }
         );
         console.log(response.data)
         return response.data
@@ -58,4 +84,21 @@ const AddUserData = async(user: any) => {
     }
 }
 
-export { GetUsers, UpdateUser, DeleteUser, AddUserData };
+const GetUserByEmail = async(email:string) => {
+    //get the user
+    try {
+        const response = await axios.get(`${baseURL}/getuserbyemail?email=${email}`,
+        {
+            headers: {
+                Authorization: fetchToken()
+            }
+        }
+        )
+        return response.data
+    } catch (error) {
+        console.error("Failed to get users", error)
+        throw error   
+    }
+}
+
+export { GetUsers, UpdateUser, DeleteUser, AddUserData, GetUserByEmail };

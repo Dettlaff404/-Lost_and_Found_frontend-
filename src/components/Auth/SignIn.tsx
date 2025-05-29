@@ -1,15 +1,19 @@
 import { useState } from "react";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { FaEye, FaEyeSlash, FaEnvelope, FaLock } from "react-icons/fa";
 import { SignInTask } from "../../service/Auth";
 import { NavLink } from "react-router";
+import styles from "./signstyle.module.css";
+import { useAuth } from "./AuthProvider";
 
 export const SignIn = () => {
     interface SignIn {
         email: string;
         password: string;
     }
+
+    const { login } = useAuth();
 
     const [user, setUser] = useState<SignIn>({
         email: "",
@@ -20,7 +24,8 @@ export const SignIn = () => {
         email: ""
     });
 
-    const [showPassword, setShowPassword] = useState(false); 
+    const [showPassword, setShowPassword] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -40,60 +45,97 @@ export const SignIn = () => {
             return;
         }
 
-        // API request
-        const token = await SignInTask(user);
-        console.log(token);
-
-        setUser({ email: "", password: "" });
+        setIsLoading(true);
+        try {
+            const token = await SignInTask(user);
+            login(token);
+            console.log(token);
+            setUser({ email: "", password: "" });
+        } catch (error) {
+            console.error("Sign in failed:", error);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
-        <>
-            <h1>Sign In</h1>
+        <div className={styles.authContainer}>
+            <div className={styles.authBackground}></div>
+            <div className={styles.authContent}>
+                <div className={styles.authHeader}>
+                    <h1 className={styles.authTitle}>Welcome Back</h1>
+                    <p className={styles.authSubtitle}>Sign in to your account</p>
+                </div>
 
-            <Form className="d-flex flex-column align-items-center mt-5" onSubmit={handleOnSubmit}>
-                <div className="w-50">
-                    <Form.Group className="mb-3">
-                        <Form.Label>Email Address</Form.Label>
-                        <Form.Control
-                            type="email"
-                            placeholder="Enter email"
-                            name="email"
-                            value={user.email}
-                            onChange={handleOnChange}
-                        />
-                        {errors.email && <small className="text-danger">{errors.email}</small>}
-                    </Form.Group>
+                <Form className={styles.authForm} onSubmit={handleOnSubmit}>
+                    <div className={styles.formCard}>
+                        <Form.Group className={styles.inputGroup}>
+                            <Form.Label className={styles.inputLabel}>Email Address</Form.Label>
+                            <div className={styles.inputWrapper}>
+                                {FaEnvelope({ className: styles.inputIcon })}
+                                <Form.Control
+                                    type="email"
+                                    placeholder="Enter your email"
+                                    name="email"
+                                    value={user.email}
+                                    onChange={handleOnChange}
+                                    className={`${styles.modernInput} ${errors.email ? styles.inputError : ''}`}
+                                />
+                            </div>
+                            {errors.email && <div className={styles.errorMessage}>{errors.email}</div>}
+                        </Form.Group>
 
-                    <Form.Group className="mb-3 position-relative">
-                        <Form.Label>Password</Form.Label>
-                        <div className="d-flex align-items-center">
-                            <Form.Control
-                                type={showPassword ? "text" : "password"}
-                                placeholder="Enter Password"
-                                name="password"
-                                value={user.password}
-                                onChange={handleOnChange}
-                            />
-                            <Button
-                                variant="outline-secondary"
-                                className="ms-2"
-                                onClick={() => setShowPassword(!showPassword)}
+                        <Form.Group className={styles.inputGroup}>
+                            <Form.Label className={styles.inputLabel}>Password</Form.Label>
+                            <div className={styles.inputWrapper}>
+                                {FaLock({ className: styles.inputIcon })}
+                                <Form.Control
+                                    type={showPassword ? "text" : "password"}
+                                    placeholder="Enter your password"
+                                    name="password"
+                                    value={user.password}
+                                    onChange={handleOnChange}
+                                    className={styles.modernInput}
+                                />
+                                <button
+                                    type="button"
+                                    className={styles.togglePassword}
+                                    onClick={() => setShowPassword(!showPassword)}
+                                >
+                                    {showPassword ? FaEyeSlash({ size: 16 }) : FaEye({ size: 16 })}
+                                </button>
+                            </div>
+                        </Form.Group>
+
+                        <div className={styles.formActions}>
+                            <Button 
+                                variant="primary" 
+                                type="submit" 
+                                className={styles.primaryButton}
+                                disabled={isLoading}
                             >
-                                {showPassword ? FaEyeSlash({ size: 20 }) : FaEye({ size: 20 })}
+                                {isLoading ? (
+                                    <>
+                                        <span className={styles.spinner}></span>
+                                        Signing In...
+                                    </>
+                                ) : (
+                                    'Sign In'
+                                )}
                             </Button>
                         </div>
-                    </Form.Group>
 
-                    <div className="d-flex justify-content-between">
-                        <NavLink to="/signup">
-                            <Button variant="outline-primary" className="me-2">New User? Sign Up</Button>
-                        </NavLink>
-                        <Button variant="success" type="submit">Log In</Button>
+                        <div className={styles.authFooter}>
+                            <p className={styles.authFooterText}>
+                                Don't have an account?{' '}
+                                <NavLink to="/signup" className={styles.authLink}>
+                                    Sign Up
+                                </NavLink>
+                            </p>
+                        </div>
                     </div>
-
-                </div>
-            </Form>
-        </>
+                </Form>
+            </div>
+        </div>
     );
 };

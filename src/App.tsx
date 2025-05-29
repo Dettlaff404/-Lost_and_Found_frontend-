@@ -9,26 +9,29 @@ import NotFound from './components/Common/NotFound';
 import { ItemTypeProvider } from './components/NavBar/ItemTypeContext'; 
 import { SignIn } from './components/Auth/SignIn';
 import { SignUp } from './components/Auth/SignUp';
+import { AuthProvider } from './components/Auth/AuthProvider';
 
 function App() {
   return (
     <ItemTypeProvider>
       <BrowserRouter>
-        <NavB/>
-          <Routes>
-            <Route path='/' element={<SignIn/>}/>
-            <Route path='/signin' element={<SignIn/>}/>
-            <Route path='/signup' element={<SignUp/>}/>
-            <Route path='/requests' element={
-              <>
-                <RequestConsole />
-                <ItemConsole />
-              </>
-            }/>
-            <Route path='/items' element={<ItemConsole/>}/>
-            <Route path='/users' element={<UserConsole/>}/>
-            <Route path='/*' element={<NotFound/>}/>
-          </Routes>
+        <AuthProvider>
+          <NavB/>
+            <Routes>
+              <Route path='/' element={<SignIn/>}/>
+              <Route path='/signin' element={<SignIn/>}/>
+              <Route path='/signup' element={<SignUp/>}/>
+              <Route path='/requests' element={
+                <>
+                  <RequestConsole />
+                  <ItemConsole />
+                </>
+              }/>
+              <Route path='/items' element={<ItemConsole/>}/>
+              <Route path='/users' element={<UserConsole/>}/>
+              <Route path='/*' element={<NotFound/>}/>
+            </Routes>
+          </AuthProvider>
       </BrowserRouter>
     </ItemTypeProvider>
   );
