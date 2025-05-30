@@ -7,6 +7,7 @@ import EditUser from './EditUser';
 import AddUser from './AddUser';
 import { useLocation, useNavigate } from 'react-router';
 import { useAuth } from '../Auth/AuthProvider';
+import Swal from 'sweetalert2';
 
 export function UserConsole() {
 
@@ -128,11 +129,25 @@ export function UserConsole() {
 
     //handle delete function
     const handleDelete = async (userId: string) => {
-        try {
-            await DeleteUser(userId);
-            setUserData(userData.filter((user) => user.userId !== userId));
-        } catch (error) {
-            console.error("Failed to delete user", error)   
+
+        // impl custom delete alert
+        const result = await Swal.fire({
+            title: 'Are you sure to delete this User?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!'
+        });
+
+        if (result.isConfirmed) {
+            try {
+                await DeleteUser(userId);
+                setUserData(userData.filter((user) => user.userId !== userId));
+            } catch (error) {
+                console.error("Failed to delete user", error)   
+            }
         }
     }
 

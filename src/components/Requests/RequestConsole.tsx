@@ -8,6 +8,7 @@ import AddRequest from './AddRequest';
 import styles from './requeststyle.module.css'
 import { useLocation, useNavigate } from 'react-router';
 import { useAuth } from '../Auth/AuthProvider';
+import Swal from 'sweetalert2';
 
 export function RequestConsole() {
 
@@ -91,11 +92,25 @@ export function RequestConsole() {
 
     //handle delete function
     const handleDelete = async (requestId: string) => {
-        try {
-            await DeleteRequest(requestId);
-            setRequestData(requestData.filter((request) => request.requestId !== requestId));
-        } catch (error) {
-            console.error("Failed to delete request", error)   
+
+        //impl custom delete alert
+        const result = await Swal.fire({
+            title: 'Are you sure to delete this Request?',
+            text: `You won't be able to revert this! This will also delete the associated Item.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!'
+        });
+
+        if (result.isConfirmed) {
+            try {
+                await DeleteRequest(requestId);
+                setRequestData(requestData.filter((request) => request.requestId !== requestId));
+            } catch (error) {
+                console.error("Failed to delete request", error)   
+            }
         }
     }
 

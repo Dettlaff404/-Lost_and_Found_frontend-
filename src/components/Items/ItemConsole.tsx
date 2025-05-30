@@ -8,6 +8,7 @@ import { useItemType } from "../NavBar/ItemTypeContext";
 import EditItem from './EditItem';
 import { useAuth } from '../Auth/AuthProvider';
 import { useNavigate } from 'react-router';
+import Swal from 'sweetalert2';
 
 export function ItemConsole() {
     // Get user role from auth context
@@ -195,11 +196,25 @@ export function ItemConsole() {
 
     // Handle delete function - Fixed to use itemId instead of requestId
     const handleDelete = async (itemId: string) => {
-        try {
-            await DeleteItem(itemId);
-            setItemData(itemData.filter((item) => item.itemId !== itemId));
-        } catch (error) {
-            console.error("Failed to delete item", error)   
+
+        //impl custom delete alert
+        const result = await Swal.fire({
+            title: 'Are you sure to delete this Item?',
+            text: `You won't be able to revert this! This will also delete the associated Request.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!'
+        });
+
+        if(result.isConfirmed) {
+            try {
+                await DeleteItem(itemId);
+                setItemData(itemData.filter((item) => item.itemId !== itemId));
+            } catch (error) {
+                console.error("Failed to delete item", error)   
+            }
         }
     }
 
