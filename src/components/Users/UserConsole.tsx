@@ -120,11 +120,18 @@ export function UserConsole() {
         setSelectedRow(null);
     }
 
-    const handleUpdate = (updatedUser: User) => {
-        const updatedUsers = userData.map((user) => 
+    const handleUpdate = async (updatedUser: User) => {
+        const updatedUsers = userData.map((user) =>
             user.userId === updatedUser.userId ? updatedUser : user
         );
         setUserData(updatedUsers);
+
+        await Swal.fire({
+            title: 'Success!',
+            text: 'User details edited successfully.',
+            icon: 'success',
+            confirmButtonText: 'OK'
+        });
     }
 
     //handle delete function
@@ -146,14 +153,21 @@ export function UserConsole() {
                 await DeleteUser(userId);
                 setUserData(userData.filter((user) => user.userId !== userId));
             } catch (error) {
-                console.error("Failed to delete user", error)   
+                console.error("Failed to delete user", error)
             }
         }
     }
 
     //handle add function
-    const handleAdd = (newUser: User) => {
+    const handleAdd = async (newUser: User) => {
         setUserData((userData) => [...userData, newUser]);
+
+        await Swal.fire({
+            title: 'Success!',
+            text: 'User details added successfully.',
+            icon: 'success',
+            confirmButtonText: 'OK'
+        });
     }
 
     //page title
@@ -164,7 +178,7 @@ export function UserConsole() {
     return (
         <>
             <h1 className={styles.userTitle}>{formatedTitle}</h1>
-            
+
             {/* Show "Register New User" button for non-user roles, or spacer div for user roles */}
             {userRole !== "ROLE_USER" ? (
                 <div className='d-flex justify-content-end p-3'>
@@ -190,7 +204,7 @@ export function UserConsole() {
                     ))}
                 </tbody>
             </Table>
-                
+
             {/* Only show EditUser modal for non-user roles */}
             {userRole !== "ROLE_USER" && (
                 <EditUser

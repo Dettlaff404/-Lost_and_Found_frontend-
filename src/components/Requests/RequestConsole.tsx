@@ -36,7 +36,7 @@ export function RequestConsole() {
     //Loading Data
     useEffect(() => {
         const loadData = async () => {
-            try{
+            try {
                 const reqDetails = await GetRequests()
                 //sort the data based on date in Ascending order
                 reqDetails.sort((a: Request, b: Request) => new Date(a.date).getTime() - new Date(b.date).getTime());
@@ -50,24 +50,24 @@ export function RequestConsole() {
     }, [navigate]);
 
     // Define table headers based on user role
-    const tHeads: string[] = userRole === 'ROLE_USER' 
+    const tHeads: string[] = userRole === 'ROLE_USER'
         ? [
-            "Item Name", 
-            "Description", 
-            "Location", 
-            "Date", 
-            "Item Status", 
+            "Item Name",
+            "Description",
+            "Location",
+            "Date",
+            "Item Status",
             "Request Status"
         ]
         : [
             "Request ID",
             "User ID",
-            "Item Name", 
-            "Description", 
-            "Location", 
-            "Date", 
-            "Item Status", 
-            "Request Status", 
+            "Item Name",
+            "Description",
+            "Location",
+            "Date",
+            "Item Status",
+            "Request Status",
             "Action"
         ];
 
@@ -83,11 +83,20 @@ export function RequestConsole() {
         setSelectedRow(null);
     }
 
-    const handleUpdate = (updatedRequest: Request) => {
-        const updatedRequests = requestData.map((request) => 
+    const handleUpdate = async (updatedRequest: Request) => {
+        const updatedRequests = requestData.map((request) =>
             request.requestId === updatedRequest.requestId ? updatedRequest : request
         );
         setRequestData(updatedRequests);
+        const result = await Swal.fire({
+            title: 'Success!',
+            text: 'Item details edited successfully.',
+            icon: 'success',
+            confirmButtonText: 'OK'
+        })
+        if (result.isConfirmed) {
+            window.location.reload();
+        }
     }
 
     //handle delete function
@@ -109,14 +118,21 @@ export function RequestConsole() {
                 await DeleteRequest(requestId);
                 setRequestData(requestData.filter((request) => request.requestId !== requestId));
             } catch (error) {
-                console.error("Failed to delete request", error)   
+                console.error("Failed to delete request", error)
             }
         }
     }
 
     //handle add function
-    const handleAdd = (newRequest: Request) => {
+    const handleAdd = async (newRequest: Request) => {
         setRequestData((requestData) => [...requestData, newRequest]);
+
+        await Swal.fire({
+            title: 'Success!',
+            text: 'Request details added successfully.',
+            icon: 'success',
+            confirmButtonText: 'OK'
+        });
     }
 
     //page title
@@ -165,7 +181,7 @@ export function RequestConsole() {
                     ))}
                 </tbody>
             </Table>
-                
+
             <EditRequest
                 show={showEditRequest}
                 selectedRow={selectedRow}

@@ -187,11 +187,22 @@ export function ItemConsole() {
         setSelectedRow(null);
     }
 
-    const handleUpdate = (updatedItem: Item) => {
+    const handleUpdate = async (updatedItem: Item) => {
         const updatedItems = itemData.map((item) => 
             item.itemId === updatedItem.itemId ? updatedItem : item
         );
         setItemData(updatedItems);
+
+        const result = await Swal.fire({
+            title: 'Success!',
+            text: 'Item details edited successfully.',
+            icon: 'success',
+            confirmButtonText: 'OK'
+        });
+
+        if (result.isConfirmed && userRole !== 'ROLE_USER') {
+            window.location.reload();
+        }
     }
 
     // Handle delete function - Fixed to use itemId instead of requestId
