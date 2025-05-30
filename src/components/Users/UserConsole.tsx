@@ -5,7 +5,7 @@ import styles from './userstyle.module.css'
 import { AddUserData, DeleteUser, GetUsers, UpdateUser } from '../../service/UserData';
 import EditUser from './EditUser';
 import AddUser from './AddUser';
-import { useLocation } from 'react-router';
+import { useLocation, useNavigate } from 'react-router';
 import { useAuth } from '../Auth/AuthProvider';
 
 export function UserConsole() {
@@ -27,23 +27,30 @@ export function UserConsole() {
     // Get user role from auth context
     const { userRole } = useAuth();
 
+    const navigate = useNavigate();
+
     //Loading Data
     useEffect(() => {
         const loadData = async () => {
-            const usrDetails = await GetUsers();
+            try {
+                const usrDetails = await GetUsers();
 
-            // Filter data based on user role
-            if (userRole === "ROLE_USER") {
-                // Only show users with role "USER" for ROLE_USER
-                const filteredUsers = usrDetails.filter((user: User) => user.role === "USER");
-                setUserData(filteredUsers);
-            } else {
-                // Show all users for other roles (ADMIN, STAFF, etc.)
-                setUserData(usrDetails);
+                // Filter data based on user role
+                if (userRole === "ROLE_USER") {
+                    // Only show users with role "USER" for ROLE_USER
+                    const filteredUsers = usrDetails.filter((user: User) => user.role === "USER");
+                    setUserData(filteredUsers);
+                } else {
+                    // Show all users for other roles (ADMIN, STAFF, etc.)
+                    setUserData(usrDetails);
+                }
+            } catch (error) {
+                navigate('/unauth');
+                console.error("Failed to fetch users", error);
             }
         }
         loadData();
-    }, [userRole]);
+    }, [userRole, navigate]);
 
     // Dynamic table headers based on user role
     const getTableHeaders = (): string[] => {

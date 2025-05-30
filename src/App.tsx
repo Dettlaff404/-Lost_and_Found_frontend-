@@ -10,6 +10,7 @@ import { SignIn } from './components/Auth/SignIn';
 import { SignUp } from './components/Auth/SignUp';
 import { AuthProvider, useAuth } from './components/Auth/AuthProvider';
 import { RequestConsole } from './components/Requests/RequestConsole';
+import { UnAuth } from './components/Common/UnAuth';
 
 // Create a separate component to access the auth context
 function AppRoutes() {
@@ -22,6 +23,7 @@ function AppRoutes() {
         <Route path='/' element={<SignIn/>}/>
         <Route path='/signin' element={<SignIn/>}/>
         <Route path='/signup' element={<SignUp/>}/>
+        <Route path='/unauth' element={<UnAuth/>}/>
         <Route path='/requests' element={userRole === 'ROLE_USER' ?
           <>
             <RequestConsole />

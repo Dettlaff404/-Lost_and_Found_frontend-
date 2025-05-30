@@ -1,4 +1,3 @@
-/* Modern Authentication Styles */
 .authContainer {
   min-height: 90vh;
   position: relative;
@@ -16,11 +15,11 @@
   width: 100%;
   height: 100%;
   background: linear-gradient(135deg, 
-    #667eea 0%, 
-    #764ba2 25%, 
-    #f093fb 50%, 
-    #f5576c 75%, 
-    #4facfe 100%);
+    #1a1a2e 0%, 
+      #16213e 25%, 
+      #0f3460 50%, 
+      #533483 75%, 
+      #1a1a2e 100%);
   background-size: 400% 400%;
   animation: gradientShift 15s ease infinite;
   z-index: -2;
@@ -314,7 +313,7 @@
   }
 }
 
-/* Additional modern enhancements */
+/* Additional stuff */
 .formCard::before {
   content: '';
   position: absolute;
@@ -339,16 +338,4 @@
 
 .inputWrapper:focus-within::after {
   transform: scaleX(1);
-}
-
-/* Dark mode compatibility */
-@media (prefers-color-scheme: dark) {
-  .authBackground {
-    background: linear-gradient(135deg, 
-      #1a1a2e 0%, 
-      #16213e 25%, 
-      #0f3460 50%, 
-      #533483 75%, 
-      #1a1a2e 100%);
-  }
 }

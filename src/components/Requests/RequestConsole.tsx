@@ -6,7 +6,7 @@ import EditRequest from './EditRequest';
 import { formatDate } from '../../service/Util';
 import AddRequest from './AddRequest';
 import styles from './requeststyle.module.css'
-import { useLocation } from 'react-router';
+import { useLocation, useNavigate } from 'react-router';
 import { useAuth } from '../Auth/AuthProvider';
 
 export function RequestConsole() {
@@ -30,16 +30,23 @@ export function RequestConsole() {
     // Get user role from auth context
     const { userRole } = useAuth();
 
+    const navigate = useNavigate();
+
     //Loading Data
     useEffect(() => {
         const loadData = async () => {
-            const reqDetails = await GetRequests()
-            //sort the data based on date in Ascending order
-            reqDetails.sort((a: Request, b: Request) => new Date(a.date).getTime() - new Date(b.date).getTime());
-            setRequestData(reqDetails)
+            try{
+                const reqDetails = await GetRequests()
+                //sort the data based on date in Ascending order
+                reqDetails.sort((a: Request, b: Request) => new Date(a.date).getTime() - new Date(b.date).getTime());
+                setRequestData(reqDetails)
+            } catch (error) {
+                navigate('/unauth')
+                console.error("Failed to fetch requests", error)
+            }
         }
         loadData();
-    }, []);
+    }, [navigate]);
 
     // Define table headers based on user role
     const tHeads: string[] = userRole === 'ROLE_USER' 

@@ -32,13 +32,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const login = (token: string) => {
         // Set token in local storage
         localStorage.setItem('lofToken', token);
-        console.log("saved token");
 
         const decoded = jwtDecode<any>(token);
         const role = decoded.roles;
 
         localStorage.setItem('lofRole', role);
-        console.log("saved role");
         
         // Update state immediately
         setUserRole(role);

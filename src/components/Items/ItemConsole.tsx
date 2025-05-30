@@ -7,10 +7,13 @@ import { DeleteItem, GetItems, UpdateItem } from '../../service/ItemData';
 import { useItemType } from "../NavBar/ItemTypeContext";
 import EditItem from './EditItem';
 import { useAuth } from '../Auth/AuthProvider';
+import { useNavigate } from 'react-router';
 
 export function ItemConsole() {
     // Get user role from auth context
     const { userRole } = useAuth();
+
+    const navigate = useNavigate();
 
     interface Item {
         itemId: string;
@@ -31,19 +34,25 @@ export function ItemConsole() {
     // Loading Data
     useEffect(() => {
         const loadData = async () => {
-            const itmDetails = await GetItems()
-            // sort the data based on date in Ascending order
-            itmDetails.sort((a: Item, b: Item) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
-            // Data Selection
-            if (selectedItemType === "ALL") {
-                setItemData(itmDetails)
-            } else {
-                setItemData(itmDetails.filter((item: Item) => item.status === selectedItemType));
+            try {
+                const itmDetails = await GetItems()
+                // sort the data based on date in Ascending order
+                itmDetails.sort((a: Item, b: Item) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+                // Data Selection
+                if (selectedItemType === "ALL") {
+                    setItemData(itmDetails)
+                } else {
+                    setItemData(itmDetails.filter((item: Item) => item.status === selectedItemType));
+                }
+            } catch (error) {
+                navigate('/unauth')
+                console.error("Failed to fetch books", error)
             }
         }
         loadData();
-    }, [selectedItemType]);
+    }, [selectedItemType, navigate]);
 
     // Dynamic table headers based on user role and item type
     const getTableHeaders = (): string[] => {
