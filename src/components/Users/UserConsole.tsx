@@ -1,13 +1,12 @@
 import { useEffect, useState } from 'react';
-import Button from 'react-bootstrap/Button';
-import Table from 'react-bootstrap/Table';
-import styles from './userstyle.module.css'
 import { AddUserData, DeleteUser, GetUsers, UpdateUser } from '../../service/UserData';
 import EditUser from './EditUser';
 import AddUser from './AddUser';
+import styles from "../styles.module.css"
 import { useLocation, useNavigate } from 'react-router';
 import { useAuth } from '../Auth/AuthProvider';
 import Swal from 'sweetalert2';
+import { FaPlus, FaEdit, FaTrash, FaUser, FaEnvelope, FaPhone, FaIdCard } from 'react-icons/fa';
 
 export function UserConsole() {
 
@@ -77,37 +76,6 @@ export function UserConsole() {
 
     const tHeads = getTableHeaders();
 
-    // Render table cells based on user role
-    const renderTableCells = (data: User) => {
-        if (userRole === "ROLE_USER") {
-            return (
-                <>
-                    <td>{data.userId}</td>
-                    <td>{data.fullname}</td>
-                    <td>{data.email}</td>
-                    <td>{data.mobile}</td>
-                    <td>{data.role}</td>
-                </>
-            );
-        } else {
-            return (
-                <>
-                    <td>{data.userId}</td>
-                    <td>{data.fullname}</td>
-                    <td>{data.email}</td>
-                    <td>{data.mobile}</td>
-                    <td>{data.role}</td>
-                    <td className={styles.actions}>
-                        <div className={styles.actionButtons}>
-                            <Button variant="outline-success" onClick={() => handleEdit(data)}>Edit</Button>
-                            <Button variant="outline-danger" onClick={() => handleDelete(data.userId)}>Delete</Button>
-                        </div>
-                    </td>
-                </>
-            );
-        }
-    };
-
     // Handle edit function
     const handleEdit = (data: User) => {
         console.log("Edit clicked for row:", data);
@@ -172,38 +140,145 @@ export function UserConsole() {
 
     //page title
     const location = useLocation();
-    const routeName = location.pathname.split("/").filter(Boolean).pop() || "Request";
-    const formatedTitle = routeName.charAt(0).toUpperCase() + routeName.slice(1) + " List";
+    const routeName = location.pathname.split("/").filter(Boolean).pop() || "User";
+    const formatedTitle = routeName.charAt(0).toUpperCase() + routeName.slice(1) + " Management";
+
+    const getRoleBadge = (role: string) => {
+        const roleClasses = {
+            'admin': styles.statusApproved,
+            'staff': styles.statusPending,
+            'user': styles.statusCompleted,
+            'role_admin': styles.statusApproved,
+            'role_staff': styles.statusPending,
+            'role_user': styles.statusCompleted
+        };
+        
+        const roleClass = roleClasses[role.toLowerCase() as keyof typeof roleClasses] || styles.statusDefault;
+        
+        return (
+            <span className={`${styles.statusBadge} ${roleClass}`}>
+                {role.replace('ROLE_', '')}
+            </span>
+        );
+    };
 
     return (
-        <>
-            <h1 className={styles.userTitle}>{formatedTitle}</h1>
-
-            {/* Show "Register New User" button for non-user roles, or spacer div for user roles */}
-            {userRole !== "ROLE_USER" ? (
-                <div className='d-flex justify-content-end p-3'>
-                    <Button variant="outline-primary" onClick={() => setShowAddUser(true)}>Register New User</Button>
+        <div className={styles.consoleContainer}>
+            <div className={styles.consoleBackground}></div>
+            
+            <div className={styles.consoleContent}>
+                <div className={styles.consoleHeader}>
+                    <div className={styles.headerIcon}>
+                        <FaUser size={24} />
+                    </div>
+                    <h1 className={styles.consoleTitle}>{formatedTitle}</h1>
+                    <p className={styles.consoleSubtitle}>
+                        {userData.length} {userData.length === 1 ? 'user' : 'users'} found
+                    </p>
                 </div>
-            ) : (
-                <div style={{ paddingBottom: '32px' }}></div>
-            )}
 
-            <Table responsive="lg" striped bordered hover>
-                <thead className="text-center align-middle">
-                    <tr>
-                        {tHeads.map((heading, index) => (
-                            <th key={index}>{heading}</th>
-                        ))}
-                    </tr>
-                </thead>
-                <tbody>
-                    {userData.map((data) => (
-                        <tr key={data.userId} className="text-center align-middle">
-                            {renderTableCells(data)}
-                        </tr>
-                    ))}
-                </tbody>
-            </Table>
+                {userRole !== "ROLE_USER" && (
+                    <div className={styles.tableControls}>
+                        <button 
+                            className={styles.addButton}
+                            onClick={() => setShowAddUser(true)}
+                        >
+                            <FaPlus size={16} />
+                            Register New User
+                        </button>
+                    </div>
+                )}
+
+                <div className={styles.tableContainer}>
+                    <div className={styles.tableWrapper}>
+                        <table className={styles.modernTable}>
+                            <thead>
+                                <tr>
+                                    {tHeads.map((heading, index) => (
+                                        <th key={index} className={styles.tableHeader}>
+                                            {heading}
+                                        </th>
+                                    ))}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {userData.map((data) => (
+                                    <tr key={data.userId} className={styles.tableRow}>
+                                        <td className={styles.tableCell}>
+                                            <div className={styles.userInfo}>
+                                                <FaIdCard size={14} className={styles.cellIcon} />
+                                                <span className={styles.requestId}>#{data.userId.slice(-6)}</span>
+                                            </div>
+                                        </td>
+                                        <td className={styles.tableCell}>
+                                            <div className={styles.itemInfo}>
+                                                <FaUser size={14} className={styles.cellIcon} />
+                                                <span className={styles.itemName}>{data.fullname}</span>
+                                            </div>
+                                        </td>
+                                        <td className={styles.tableCell}>
+                                            <div className={styles.locationInfo}>
+                                                <FaEnvelope size={14} className={styles.cellIcon} />
+                                                <span className={styles.description}>{data.email}</span>
+                                            </div>
+                                        </td>
+                                        <td className={styles.tableCell}>
+                                            <div className={styles.dateInfo}>
+                                                <FaPhone size={14} className={styles.cellIcon} />
+                                                {data.mobile}
+                                            </div>
+                                        </td>
+                                        <td className={styles.tableCell}>
+                                            {getRoleBadge(data.role)}
+                                        </td>
+                                        {userRole !== "ROLE_USER" && (
+                                            <td className={styles.tableCell}>
+                                                <div className={styles.actionButtons}>
+                                                    <button 
+                                                        className={styles.editButton}
+                                                        onClick={() => handleEdit(data)}
+                                                        title="Edit User"
+                                                    >
+                                                        <FaEdit size={14} />
+                                                    </button>
+                                                    <button 
+                                                        className={styles.deleteButton}
+                                                        onClick={() => handleDelete(data.userId)}
+                                                        title="Delete User"
+                                                    >
+                                                        <FaTrash size={14} />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        )}
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                        
+                        {userData.length === 0 && (
+                            <div className={styles.emptyState}>
+                                <div className={styles.emptyIcon}>
+                                    <FaUser size={48} />
+                                </div>
+                                <h3 className={styles.emptyTitle}>No Users Found</h3>
+                                <p className={styles.emptyText}>
+                                    Get started by adding your first user
+                                </p>
+                                {userRole !== "ROLE_USER" && (
+                                    <button 
+                                        className={styles.emptyButton}
+                                        onClick={() => setShowAddUser(true)}
+                                    >
+                                        <FaPlus size={16} />
+                                        Add First User
+                                    </button>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
 
             {/* Only show EditUser modal for non-user roles */}
             {userRole !== "ROLE_USER" && (
@@ -225,7 +300,6 @@ export function UserConsole() {
                     addUser={AddUserData}
                 />
             )}
-
-        </>
+        </div>
     );
 }
