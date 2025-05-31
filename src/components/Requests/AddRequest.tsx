@@ -1,23 +1,19 @@
-import Button from 'react-bootstrap/Button';
-import Modal from 'react-bootstrap/Modal';
-import FloatingLabel from 'react-bootstrap/FloatingLabel';
-import Form from 'react-bootstrap/Form';
 import { useState } from 'react';
+import { FaPlus, FaTimes, FaSave } from 'react-icons/fa';
+import styles from "../styles.module.css"
 
 interface Request {
-        requestId: string;
-        userId: string;
-        itemName: string;
-        description: string;
-        location: string;
-        date: string;
-        itemStatus: string;
-        status: string;
-    }
+    requestId: string;
+    userId: string;
+    itemName: string;
+    description: string;
+    location: string;
+    date: string;
+    itemStatus: string;
+    status: string;
+}
 
 function AddRequest({ show, handleClose, handleAdd, addRequest }: any) {
-
-    //state management
     const [newRequest, setNewRequest] = useState<Request>({
         requestId: '',
         userId: (localStorage.getItem('lofUserId') as string),
@@ -29,13 +25,10 @@ function AddRequest({ show, handleClose, handleAdd, addRequest }: any) {
         status: ''
     });
 
-
-    //add request data from the form
     const handleOnChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         setNewRequest({ ...newRequest, [e.target.name]: e.target.value });
     }
 
-    //handle the add book process with the back-end
     const handleOnSubmit = async () => {
         try {
             console.log(newRequest)
@@ -53,57 +46,112 @@ function AddRequest({ show, handleClose, handleAdd, addRequest }: any) {
                 itemStatus: '',
                 status: ''
             });
-
         } catch (err) {
             console.error("Failed to Add the Request", err)
         }
     }
 
-    const createFormElement = (label: string, name: keyof Request, type = "text") => (
-        <FloatingLabel controlId="floatingInput" label={label} className="mb-3">
-            <Form.Control
-                type={type}
-                name={name}
-                value={newRequest[name]}
-                onChange={handleOnChange}
-            />
-        </FloatingLabel>
-    );
+    if (!show) return null;
 
     return (
-        <Modal show={show} onHide={handleClose}>
-            <Modal.Header closeButton>
-                <Modal.Title>Create a new Request</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-                {/* Form */}
-                <Form>
-                    {/* {createFormElement("User ID", "userId")}   should be replaced with user id derived from the token */}
-                    {createFormElement("Item Name", "itemName")}
-                    {createFormElement("Description", "description")}
-                    {createFormElement("Location", "location")}
-                    {createFormElement("Date", "date", "date")}
+        <div className={styles.modalOverlay}>
+            <div className={styles.modalContainer}>
+                <div className={styles.modalHeader}>
+                    <div className={styles.modalHeaderIcon}>
+                        <FaPlus size={20} />
+                    </div>
+                    <h2 className={styles.modalTitle}>Create New Request</h2>
+                    <button 
+                        className={styles.modalCloseButton}
+                        onClick={handleClose}
+                    >
+                        <FaTimes size={18} />
+                    </button>
+                </div>
 
-                    <Form.Group className="mb-3" controlId="formBasicEmail">
-                        <Form.Label>Item Status</Form.Label>
-                        <Form.Select name='itemStatus' value={newRequest.itemStatus} onChange={handleOnChange}>
-                            <option value="">Select the Status</option>
-                            <option value="LOST">LOST</option>
-                            <option value="FOUND">FOUND</option>
-                        </Form.Select>
-                    </Form.Group>
+                <div className={styles.modalBody}>
+                    <div className={styles.formContainer}>
+                        <div className={styles.inputGroup}>
+                            <label className={styles.inputLabel}>Item Name</label>
+                            <input
+                                type="text"
+                                name="itemName"
+                                value={newRequest.itemName}
+                                onChange={handleOnChange}
+                                className={styles.formInput}
+                                placeholder="Enter item name"
+                            />
+                        </div>
 
-                </Form>
-            </Modal.Body>
-            <Modal.Footer>
-                <Button variant="secondary" onClick={handleClose}>
-                    Close
-                </Button>
-                <Button variant="primary" onClick={handleOnSubmit}>
-                    Save
-                </Button>
-            </Modal.Footer>
-        </Modal>
+                        <div className={styles.inputGroup}>
+                            <label className={styles.inputLabel}>Description</label>
+                            <textarea
+                                name="description"
+                                value={newRequest.description}
+                                onChange={handleOnChange}
+                                className={styles.formTextarea}
+                                placeholder="Describe the item"
+                                rows={3}
+                            />
+                        </div>
+
+                        <div className={styles.inputGroup}>
+                            <label className={styles.inputLabel}>Location</label>
+                            <input
+                                type="text"
+                                name="location"
+                                value={newRequest.location}
+                                onChange={handleOnChange}
+                                className={styles.formInput}
+                                placeholder="Where was it lost/found?"
+                            />
+                        </div>
+
+                        <div className={styles.inputGroup}>
+                            <label className={styles.inputLabel}>Date</label>
+                            <input
+                                type="date"
+                                name="date"
+                                value={newRequest.date}
+                                onChange={handleOnChange}
+                                className={styles.formInput}
+                            />
+                        </div>
+
+                        <div className={styles.inputGroup}>
+                            <label className={styles.inputLabel}>Item Status</label>
+                            <select
+                                name="itemStatus"
+                                value={newRequest.itemStatus}
+                                onChange={handleOnChange}
+                                className={styles.formSelect}
+                            >
+                                <option value="">Select Status</option>
+                                <option value="LOST">LOST</option>
+                                <option value="FOUND">FOUND</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div className={styles.modalFooter}>
+                    <button 
+                        className={styles.modalSecondaryButton}
+                        onClick={handleClose}
+                    >
+                        <FaTimes size={14} />
+                        Cancel
+                    </button>
+                    <button 
+                        className={styles.modalPrimaryButton}
+                        onClick={handleOnSubmit}
+                    >
+                        <FaSave size={14} />
+                        Save Request
+                    </button>
+                </div>
+            </div>
+        </div>
     );
 }
 

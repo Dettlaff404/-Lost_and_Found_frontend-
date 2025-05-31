@@ -8,13 +8,12 @@ import NotFound from './components/Common/NotFound';
 import { ItemTypeProvider } from './components/NavBar/ItemTypeContext'; 
 import { SignIn } from './components/Auth/SignIn';
 import { SignUp } from './components/Auth/SignUp';
-import { AuthProvider, useAuth } from './components/Auth/AuthProvider';
 import { RequestConsole } from './components/Requests/RequestConsole';
 import { UnAuth } from './components/Common/UnAuth';
+import { AuthProvider } from './components/Auth/AuthProvider';
 
 // Create a separate component to access the auth context
 function AppRoutes() {
-  const { userRole } = useAuth();
 
   return (
     <>
@@ -24,16 +23,7 @@ function AppRoutes() {
         <Route path='/signin' element={<SignIn/>}/>
         <Route path='/signup' element={<SignUp/>}/>
         <Route path='/unauth' element={<UnAuth/>}/>
-        <Route path='/requests' element={userRole === 'ROLE_USER' ?
-          <>
-            <RequestConsole />
-          </>
-          :(
-            <>
-            <RequestConsole />
-            <ItemConsole />
-          </>
-          )}/>
+        <Route path='/requests' element={<RequestConsole/>}/>
         <Route path='/items' element={<ItemConsole/>}/>
         <Route path='/users' element={<UserConsole/>}/>
         <Route path='/*' element={<NotFound/>}/>

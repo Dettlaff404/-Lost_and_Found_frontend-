@@ -1,14 +1,13 @@
 import { useEffect, useState } from 'react';
-import Button from 'react-bootstrap/Button';
-import Table from 'react-bootstrap/Table';
 import { DeleteRequest, GetRequests, UpdateRequest, AddRequestData } from '../../service/RequestData';
 import EditRequest from './EditRequest';
 import { formatDate } from '../../service/Util';
 import AddRequest from './AddRequest';
-import styles from './requeststyle.module.css'
+import styles from "../styles.module.css"
 import { useLocation, useNavigate } from 'react-router';
 import { useAuth } from '../Auth/AuthProvider';
 import Swal from 'sweetalert2';
+import { FaPlus, FaEdit, FaTrash, FaTable, FaUser, FaMapMarkerAlt, FaCalendar, FaBox } from 'react-icons/fa';
 
 export function RequestConsole() {
 
@@ -88,15 +87,12 @@ export function RequestConsole() {
             request.requestId === updatedRequest.requestId ? updatedRequest : request
         );
         setRequestData(updatedRequests);
-        const result = await Swal.fire({
+        await Swal.fire({
             title: 'Success!',
             text: 'Item details edited successfully.',
             icon: 'success',
             confirmButtonText: 'OK'
         })
-        if (result.isConfirmed) {
-            window.location.reload();
-        }
     }
 
     //handle delete function
@@ -138,49 +134,154 @@ export function RequestConsole() {
     //page title
     const location = useLocation();
     const routeName = location.pathname.split("/").filter(Boolean).pop() || "Request";
-    const formatedTitle = routeName.charAt(0).toUpperCase() + routeName.slice(1) + " List";
+    const formatedTitle = routeName.charAt(0).toUpperCase() + routeName.slice(1) + " Management";
+
+    const getStatusBadge = (status: string) => {
+        const statusClasses = {
+            'pending': styles.statusPending,
+            'approved': styles.statusApproved,
+            'rejected': styles.statusRejected,
+            'completed': styles.statusCompleted,
+            'found': styles.statusFound,
+            'lost': styles.statusLost,
+            'claimed': styles.statusClaimed
+        };
+        
+        const statusClass = statusClasses[status.toLowerCase() as keyof typeof statusClasses] || styles.statusDefault;
+        
+        return (
+            <span className={`${styles.statusBadge} ${statusClass}`}>
+                {status}
+            </span>
+        );
+    };
 
     return (
-        <>
-            <h1 className={styles.requestTitle}>{formatedTitle}</h1>
+        <div className={styles.consoleContainer}>
+            <div className={styles.consoleBackground}></div>
+            
+            <div className={styles.consoleContent}>
+                <div className={styles.consoleHeader}>
+                    <div className={styles.headerIcon}>
+                        <FaTable size={24} />
+                    </div>
+                    <h1 className={styles.consoleTitle}>{formatedTitle}</h1>
+                    <p className={styles.consoleSubtitle}>
+                        {requestData.length} {requestData.length === 1 ? 'request' : 'requests'} found
+                    </p>
+                </div>
 
-            <div className='d-flex justify-content-end p-3'>
-                <Button variant="outline-primary" onClick={() => setShowAddRequest(true)}>Add</Button>
+                <div className={styles.tableControls}>
+                    <button 
+                        className={styles.addButton}
+                        onClick={() => setShowAddRequest(true)}
+                    >
+                        <FaPlus size={16} />
+                        Add New Request
+                    </button>
+                </div>
+
+                <div className={styles.tableContainer}>
+                    <div className={styles.tableWrapper}>
+                        <table className={styles.modernTable}>
+                            <thead>
+                                <tr>
+                                    {tHeads.map((heading, index) => (
+                                        <th key={index} className={styles.tableHeader}>
+                                            {heading}
+                                        </th>
+                                    ))}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {requestData.map((data, index) => (
+                                    <tr key={data.requestId} className={styles.tableRow}>
+                                        {userRole !== 'ROLE_USER' && (
+                                            <td className={styles.tableCell}>
+                                                <span className={styles.requestId}>#{data.requestId.slice(-6)}</span>
+                                            </td>
+                                        )}
+                                        {userRole !== 'ROLE_USER' && (
+                                            <td className={styles.tableCell}>
+                                                <div className={styles.userInfo}>
+                                                    <FaUser size={14} className={styles.cellIcon} />
+                                                    <span className={styles.userId}>#{data.userId.slice(-6)}</span>
+                                                </div>
+                                            </td>
+                                        )}
+                                        <td className={styles.tableCell}>
+                                            <div className={styles.itemInfo}>
+                                                <FaBox size={14} className={styles.cellIcon} />
+                                                <span className={styles.itemName}>{data.itemName}</span>
+                                            </div>
+                                        </td>
+                                        <td className={styles.tableCell}>
+                                            <span className={styles.description}>{data.description}</span>
+                                        </td>
+                                        <td className={styles.tableCell}>
+                                            <div className={styles.locationInfo}>
+                                                <FaMapMarkerAlt size={14} className={styles.cellIcon} />
+                                                {data.location}
+                                            </div>
+                                        </td>
+                                        <td className={styles.tableCell}>
+                                            <div className={styles.dateInfo}>
+                                                <FaCalendar size={14} className={styles.cellIcon} />
+                                                {formatDate(data.date)}
+                                            </div>
+                                        </td>
+                                        <td className={styles.tableCell}>
+                                            {getStatusBadge(data.itemStatus)}
+                                        </td>
+                                        <td className={styles.tableCell}>
+                                            {getStatusBadge(data.status)}
+                                        </td>
+                                        {userRole !== 'ROLE_USER' && (
+                                            <td className={styles.tableCell}>
+                                                <div className={styles.actionButtons}>
+                                                    <button 
+                                                        className={styles.editButton}
+                                                        onClick={() => handleEdit(data)}
+                                                        title="Edit Request"
+                                                    >
+                                                        <FaEdit size={14} />
+                                                    </button>
+                                                    <button 
+                                                        className={styles.deleteButton}
+                                                        onClick={() => handleDelete(data.requestId)}
+                                                        title="Delete Request"
+                                                    >
+                                                        <FaTrash size={14} />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        )}
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                        
+                        {requestData.length === 0 && (
+                            <div className={styles.emptyState}>
+                                <div className={styles.emptyIcon}>
+                                    <FaTable size={48} />
+                                </div>
+                                <h3 className={styles.emptyTitle}>No Requests Found</h3>
+                                <p className={styles.emptyText}>
+                                    Get started by adding your first request
+                                </p>
+                                <button 
+                                    className={styles.emptyButton}
+                                    onClick={() => setShowAddRequest(true)}
+                                >
+                                    <FaPlus size={16} />
+                                    Add First Request
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                </div>
             </div>
-
-            <Table responsive="lg" striped bordered hover>
-                <thead className="text-center align-middle">
-                    <tr>
-                        {tHeads.map((headings, index) => (
-                            <th key={index}>{headings}</th>
-                        ))}
-                    </tr>
-                </thead>
-                <tbody>
-                    {requestData.map((data) => (
-                        <tr key={data.requestId} className="text-center align-middle">
-                            {/* Conditionally render table cells based on user role */}
-                            {userRole !== 'ROLE_USER' && <td>{data.requestId}</td>}
-                            {userRole !== 'ROLE_USER' && <td>{data.userId}</td>}
-                            <td>{data.itemName}</td>
-                            <td>{data.description}</td>
-                            <td>{data.location}</td>
-                            <td>{formatDate(data.date)}</td>
-                            <td>{data.itemStatus}</td>
-                            <td>{data.status}</td>
-
-                            {userRole !== 'ROLE_USER' && (
-                                <td className={styles.actions}>
-                                    <div className={styles.actionButtons}>
-                                        <Button variant="outline-success" onClick={() => handleEdit(data)}>Edit</Button>
-                                        <Button variant="outline-danger" onClick={() => handleDelete(data.requestId)}>Delete</Button>
-                                    </div>
-                                </td>
-                            )}
-                        </tr>
-                    ))}
-                </tbody>
-            </Table>
 
             <EditRequest
                 show={showEditRequest}
@@ -196,7 +297,6 @@ export function RequestConsole() {
                 handleAdd={handleAdd}
                 addRequest={AddRequestData}
             />
-
-        </>
+        </div>
     );
 }
