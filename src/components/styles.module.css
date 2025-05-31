@@ -12,14 +12,6 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, 
-    #1a1a2e 0%, 
-    #16213e 25%, 
-    #0f3460 50%, 
-    #533483 75%, 
-    #1a1a2e 100%);
-  background-size: 400% 400%;
-  animation: gradientShift 15s ease infinite;
   z-index: -2;
 }
 
@@ -30,16 +22,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
-              radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
-              radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%);
   z-index: -1;
-}
-
-@keyframes gradientShift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
 }
 
 .consoleContent {
