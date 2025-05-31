@@ -1,14 +1,13 @@
 import { useEffect, useState } from 'react';
-import Button from 'react-bootstrap/Button';
-import Table from 'react-bootstrap/Table';
 import { formatDate } from '../../service/Util';
-import styles from './itemstyle.module.css'
+import styles from "../styles.module.css"
 import { DeleteItem, GetItems, UpdateItem } from '../../service/ItemData';
 import { useItemType } from "../NavBar/ItemTypeContext";
 import EditItem from './EditItem';
 import { useAuth } from '../Auth/AuthProvider';
 import { useNavigate } from 'react-router';
 import Swal from 'sweetalert2';
+import { FaEdit, FaTrash, FaTable, FaUser, FaMapMarkerAlt, FaCalendar, FaBox } from 'react-icons/fa';
 
 export function ItemConsole() {
     // Get user role from auth context
@@ -35,7 +34,6 @@ export function ItemConsole() {
     // Loading Data
     useEffect(() => {
         const loadData = async () => {
-
             try {
                 const itmDetails = await GetItems()
                 // sort the data based on date in Ascending order
@@ -49,7 +47,7 @@ export function ItemConsole() {
                 }
             } catch (error) {
                 navigate('/unauth')
-                console.error("Failed to fetch books", error)
+                console.error("Failed to fetch items", error)
             }
         }
         loadData();
@@ -107,74 +105,6 @@ export function ItemConsole() {
 
     const tHeads = getTableHeaders();
 
-    // Render table cells based on user role and item type
-    const renderTableCells = (data: Item) => {
-        if (userRole === 'ROLE_USER') {
-            if (selectedItemType === 'CLAIMED') {
-                return (
-                    <>
-                        <td>{data.itemName}</td>
-                        <td>{data.claimedUserId}</td>
-                        <td>{data.description}</td>
-                        <td>{data.location}</td>
-                        <td>{formatDate(data.date)}</td>
-                        <td>{data.status}</td>
-                    </>
-                );
-            } else {
-                return (
-                    <>
-                        <td>{data.itemName}</td>
-                        <td>{data.description}</td>
-                        <td>{data.location}</td>
-                        <td>{formatDate(data.date)}</td>
-                        <td>{data.status}</td>
-                    </>
-                );
-            }
-        } else {
-            // For non-user roles (ADMIN, STAFF, etc.)
-            if (selectedItemType === 'CLAIMED' || selectedItemType === 'ALL') {
-                return (
-                    <>
-                        <td>{data.itemId}</td>
-                        <td>{data.requestId}</td>
-                        <td>{data.claimedUserId}</td>
-                        <td>{data.itemName}</td>
-                        <td>{data.description}</td>
-                        <td>{data.location}</td>
-                        <td>{formatDate(data.date)}</td>
-                        <td>{data.status}</td>
-                        <td className={styles.actions}>
-                            <div className={styles.actionButtons}>
-                                <Button variant="outline-success" onClick={() => handleEdit(data)}>Edit</Button>
-                                <Button variant="outline-danger" onClick={() => handleDelete(data.itemId)}>Delete</Button>
-                            </div>
-                        </td>
-                    </>
-                );
-            } else {
-                return (
-                    <>
-                        <td>{data.itemId}</td>
-                        <td>{data.requestId}</td>
-                        <td>{data.itemName}</td>
-                        <td>{data.description}</td>
-                        <td>{data.location}</td>
-                        <td>{formatDate(data.date)}</td>
-                        <td>{data.status}</td>
-                        <td className={styles.actions}>
-                            <div className={styles.actionButtons}>
-                                <Button variant="outline-success" onClick={() => handleEdit(data)}>Edit</Button>
-                                <Button variant="outline-danger" onClick={() => handleDelete(data.itemId)}>Delete</Button>
-                            </div>
-                        </td>
-                    </>
-                );
-            }
-        }
-    };
-
     // Handle edit function
     const handleEdit = (data: Item) => {
         console.log("Edit clicked for row:", data);
@@ -191,24 +121,23 @@ export function ItemConsole() {
         const updatedItems = itemData.map((item) => 
             item.itemId === updatedItem.itemId ? updatedItem : item
         );
-        setItemData(updatedItems);
 
-        const result = await Swal.fire({
+        if (selectedItemType === "ALL") {
+            setItemData(updatedItems)
+        } else {
+            setItemData(updatedItems.filter((item: Item) => item.status === selectedItemType));
+        }
+
+        await Swal.fire({
             title: 'Success!',
             text: 'Item details edited successfully.',
             icon: 'success',
             confirmButtonText: 'OK'
         });
-
-        if (result.isConfirmed && userRole !== 'ROLE_USER') {
-            window.location.reload();
-        }
     }
 
-    // Handle delete function - Fixed to use itemId instead of requestId
+    // Handle delete function
     const handleDelete = async (itemId: string) => {
-
-        //impl custom delete alert
         const result = await Swal.fire({
             title: 'Are you sure to delete this Item?',
             text: `You won't be able to revert this! This will also delete the associated Request.`,
@@ -230,28 +159,268 @@ export function ItemConsole() {
     }
 
     // Page title
-    const formatedTitle = selectedItemType === "ALL" ? "Items List" : selectedItemType + " Items List";
+    const formatedTitle = selectedItemType === "ALL" ? "Items Management" : selectedItemType + " Items Management";
+
+    const getStatusBadge = (status: string) => {
+        const statusClasses = {
+            'pending': styles.statusPending,
+            'approved': styles.statusApproved,
+            'rejected': styles.statusRejected,
+            'completed': styles.statusCompleted,
+            'found': styles.statusFound,
+            'lost': styles.statusLost,
+            'claimed': styles.statusClaimed
+        };
+        
+        const statusClass = statusClasses[status.toLowerCase() as keyof typeof statusClasses] || styles.statusDefault;
+        
+        return (
+            <span className={`${styles.statusBadge} ${statusClass}`}>
+                {status}
+            </span>
+        );
+    };
+
+    // Render table cells based on user role and item type
+    const renderTableCells = (data: Item) => {
+        if (userRole === 'ROLE_USER') {
+            if (selectedItemType === 'CLAIMED') {
+                return (
+                    <>
+                        <td className={styles.tableCell}>
+                            <div className={styles.itemInfo}>
+                                <FaBox size={14} className={styles.cellIcon} />
+                                <span className={styles.itemName}>{data.itemName}</span>
+                            </div>
+                        </td>
+                        <td className={styles.tableCell}>
+                            <div className={styles.userInfo}>
+                                <FaUser size={14} className={styles.cellIcon} />
+                                <span className={styles.userId}>#{data.claimedUserId.slice(-6)}</span>
+                            </div>
+                        </td>
+                        <td className={styles.tableCell}>
+                            <span className={styles.description}>{data.description}</span>
+                        </td>
+                        <td className={styles.tableCell}>
+                            <div className={styles.locationInfo}>
+                                <FaMapMarkerAlt size={14} className={styles.cellIcon} />
+                                {data.location}
+                            </div>
+                        </td>
+                        <td className={styles.tableCell}>
+                            <div className={styles.dateInfo}>
+                                <FaCalendar size={14} className={styles.cellIcon} />
+                                {formatDate(data.date)}
+                            </div>
+                        </td>
+                        <td className={styles.tableCell}>
+                            {getStatusBadge(data.status)}
+                        </td>
+                    </>
+                );
+            } else {
+                return (
+                    <>
+                        <td className={styles.tableCell}>
+                            <div className={styles.itemInfo}>
+                                <FaBox size={14} className={styles.cellIcon} />
+                                <span className={styles.itemName}>{data.itemName}</span>
+                            </div>
+                        </td>
+                        <td className={styles.tableCell}>
+                            <span className={styles.description}>{data.description}</span>
+                        </td>
+                        <td className={styles.tableCell}>
+                            <div className={styles.locationInfo}>
+                                <FaMapMarkerAlt size={14} className={styles.cellIcon} />
+                                {data.location}
+                            </div>
+                        </td>
+                        <td className={styles.tableCell}>
+                            <div className={styles.dateInfo}>
+                                <FaCalendar size={14} className={styles.cellIcon} />
+                                {formatDate(data.date)}
+                            </div>
+                        </td>
+                        <td className={styles.tableCell}>
+                            {getStatusBadge(data.status)}
+                        </td>
+                    </>
+                );
+            }
+        } else {
+            // For non-user roles (ADMIN, STAFF, etc.)
+            if (selectedItemType === 'CLAIMED' || selectedItemType === 'ALL') {
+                return (
+                    <>
+                        <td className={styles.tableCell}>
+                            <span className={styles.requestId}>#{data.itemId.slice(-6)}</span>
+                        </td>
+                        <td className={styles.tableCell}>
+                            <span className={styles.requestId}>#{data.requestId.slice(-6)}</span>
+                        </td>
+                        <td className={styles.tableCell}>
+                            <div className={styles.userInfo}>
+                                <FaUser size={14} className={styles.cellIcon} />
+                                <span className={styles.userId}>#{data.claimedUserId?.slice(-6) || 'N/A'}</span>
+                            </div>
+                        </td>
+                        <td className={styles.tableCell}>
+                            <div className={styles.itemInfo}>
+                                <FaBox size={14} className={styles.cellIcon} />
+                                <span className={styles.itemName}>{data.itemName}</span>
+                            </div>
+                        </td>
+                        <td className={styles.tableCell}>
+                            <span className={styles.description}>{data.description}</span>
+                        </td>
+                        <td className={styles.tableCell}>
+                            <div className={styles.locationInfo}>
+                                <FaMapMarkerAlt size={14} className={styles.cellIcon} />
+                                {data.location}
+                            </div>
+                        </td>
+                        <td className={styles.tableCell}>
+                            <div className={styles.dateInfo}>
+                                <FaCalendar size={14} className={styles.cellIcon} />
+                                {formatDate(data.date)}
+                            </div>
+                        </td>
+                        <td className={styles.tableCell}>
+                            {getStatusBadge(data.status)}
+                        </td>
+                        <td className={styles.tableCell}>
+                            <div className={styles.actionButtons}>
+                                <button 
+                                    className={styles.editButton}
+                                    onClick={() => handleEdit(data)}
+                                    title="Edit Item"
+                                >
+                                    <FaEdit size={14} />
+                                </button>
+                                <button 
+                                    className={styles.deleteButton}
+                                    onClick={() => handleDelete(data.itemId)}
+                                    title="Delete Item"
+                                >
+                                    <FaTrash size={14} />
+                                </button>
+                            </div>
+                        </td>
+                    </>
+                );
+            } else {
+                return (
+                    <>
+                        <td className={styles.tableCell}>
+                            <span className={styles.requestId}>#{data.itemId.slice(-6)}</span>
+                        </td>
+                        <td className={styles.tableCell}>
+                            <span className={styles.requestId}>#{data.requestId.slice(-6)}</span>
+                        </td>
+                        <td className={styles.tableCell}>
+                            <div className={styles.itemInfo}>
+                                <FaBox size={14} className={styles.cellIcon} />
+                                <span className={styles.itemName}>{data.itemName}</span>
+                            </div>
+                        </td>
+                        <td className={styles.tableCell}>
+                            <span className={styles.description}>{data.description}</span>
+                        </td>
+                        <td className={styles.tableCell}>
+                            <div className={styles.locationInfo}>
+                                <FaMapMarkerAlt size={14} className={styles.cellIcon} />
+                                {data.location}
+                            </div>
+                        </td>
+                        <td className={styles.tableCell}>
+                            <div className={styles.dateInfo}>
+                                <FaCalendar size={14} className={styles.cellIcon} />
+                                {formatDate(data.date)}
+                            </div>
+                        </td>
+                        <td className={styles.tableCell}>
+                            {getStatusBadge(data.status)}
+                        </td>
+                        <td className={styles.tableCell}>
+                            <div className={styles.actionButtons}>
+                                <button 
+                                    className={styles.editButton}
+                                    onClick={() => handleEdit(data)}
+                                    title="Edit Item"
+                                >
+                                    <FaEdit size={14} />
+                                </button>
+                                <button 
+                                    className={styles.deleteButton}
+                                    onClick={() => handleDelete(data.itemId)}
+                                    title="Delete Item"
+                                >
+                                    <FaTrash size={14} />
+                                </button>
+                            </div>
+                        </td>
+                    </>
+                );
+            }
+        }
+    };
 
     return (
-        <>
-            <h1 className={styles.itemTitle}>{formatedTitle}</h1>
-            <Table responsive="lg" striped bordered hover>
-                <thead className="text-center align-middle">
-                    <tr>
-                        {tHeads.map((heading, index) => (
-                            <th key={index}>{heading}</th>
-                        ))}
-                    </tr>
-                </thead>
-                <tbody>
-                    {itemData.map((data) => (
-                        <tr key={data.itemId} className="text-center align-middle">
-                            {renderTableCells(data)}
-                        </tr>
-                    ))}
-                </tbody>
-            </Table>
-                
+        <div className={styles.consoleContainer}>
+            <div className={styles.consoleBackground}></div>
+            
+            <div className={styles.consoleContent}>
+                <div className={styles.consoleHeader}>
+                    <div className={styles.headerIcon}>
+                        <FaTable size={24} />
+                    </div>
+                    <h1 className={styles.consoleTitle}>{formatedTitle}</h1>
+                    <p className={styles.consoleSubtitle}>
+                        {itemData.length} {itemData.length === 1 ? 'item' : 'items'} found
+                    </p>
+                </div>
+
+                <div className={styles.tableContainer}>
+                    <div className={styles.tableWrapper}>
+                        <table className={styles.modernTable}>
+                            <thead>
+                                <tr>
+                                    {tHeads.map((heading, index) => (
+                                        <th key={index} className={styles.tableHeader}>
+                                            {heading}
+                                        </th>
+                                    ))}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {itemData.map((data) => (
+                                    <tr key={data.itemId} className={styles.tableRow}>
+                                        {renderTableCells(data)}
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                        
+                        {itemData.length === 0 && (
+                            <div className={styles.emptyState}>
+                                <div className={styles.emptyIcon}>
+                                    <FaTable size={48} />
+                                </div>
+                                <h3 className={styles.emptyTitle}>No Items Found</h3>
+                                <p className={styles.emptyText}>
+                                    {selectedItemType === "ALL" 
+                                        ? "No items available at the moment" 
+                                        : `No ${selectedItemType.toLowerCase()} items found`
+                                    }
+                                </p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+
             {/* Only show EditItem modal for non-user roles */}
             {userRole !== 'ROLE_USER' && (
                 <EditItem
@@ -262,6 +431,6 @@ export function ItemConsole() {
                     updateItems={UpdateItem}
                 />
             )}
-        </>
+        </div>
     );
 }
