@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react';
-import Button from 'react-bootstrap/Button';
-import FloatingLabel from 'react-bootstrap/FloatingLabel';
-import Form from 'react-bootstrap/Form';
-import Modal from 'react-bootstrap/Modal';
+import { FaEdit, FaTimes, FaSave, FaEye, FaEyeSlash } from 'react-icons/fa';
+import styles from "../styles.module.css"
 
 interface UserEditProps {
     show: boolean;
@@ -33,6 +31,9 @@ function EditUser({ show, selectedRow, handleClose, handleUpdate, updateUsers }:
         role: ''
     });
 
+    // Password visibility state
+    const [showPassword, setShowPassword] = useState(false);
+
     //load data when componenet mounts
     useEffect(() => {
         if (selectedRow) {
@@ -56,53 +57,134 @@ function EditUser({ show, selectedRow, handleClose, handleUpdate, updateUsers }:
         }
     }
 
-    //handle repeat of floating label
-    const renderFloatingLabel = (label: string, name: keyof User, type = "text", readOnly = false) => (
-        <FloatingLabel controlId={`floatingInput-${name}`} label={label} className="mb-3">
-            <Form.Control
-                type={type}
-                name={name}
-                value={user[name]}
-                onChange={handleOnChange}
-                readOnly={readOnly}
-            />
-        </FloatingLabel>
-    );
+    // Toggle password visibility
+    const togglePasswordVisibility = () => {
+        setShowPassword(!showPassword);
+    }
+
+    if (!show) return null;
 
     return (
-         <Modal show={show} onHide={handleClose}>
-            <Modal.Header closeButton>
-                <Modal.Title>Edit User Details</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-                {/* Form */}
-                <Form>
-                    {renderFloatingLabel("User Id", "userId", "text", true)}
-                    {renderFloatingLabel("Full Name", "fullname")}
-                    {renderFloatingLabel("Email", "email")}
-                    {renderFloatingLabel("Mobile", "mobile")}
-                    {renderFloatingLabel("Password", "password")}
+        <div className={styles.modalOverlay}>
+            <div className={styles.modalContainer}>
+                <div className={styles.modalHeader}>
+                    <div className={styles.modalHeaderIcon}>
+                        <FaEdit size={20} />
+                    </div>
+                    <h2 className={styles.modalTitle}>Edit User Details</h2>
+                    <button 
+                        className={styles.modalCloseButton}
+                        onClick={handleClose}
+                    >
+                        <FaTimes size={18} />
+                    </button>
+                </div>
 
-                    <Form.Group className="mb-3" controlId="formBasicEmail">
-                        <Form.Label>User Role</Form.Label>
-                        <Form.Select name='role' value={user.role} onChange={handleOnChange}>
-                            <option value="ADMIN">ADMIN</option>
-                            <option value="STAFF">STAFF</option>
-                            <option value="USER">USER</option>
-                        </Form.Select>
-                    </Form.Group>
+                <div className={styles.modalBody}>
+                    <div className={styles.formContainer}>
+                        <div className={styles.inputGroup}>
+                            <label className={styles.inputLabel}>User ID</label>
+                            <input
+                                type="text"
+                                name="userId"
+                                value={user.userId}
+                                className={`${styles.formInput} ${styles.readOnlyInput}`}
+                                readOnly
+                            />
+                        </div>
 
-                </Form>
-            </Modal.Body>
-            <Modal.Footer>
-                <Button variant="secondary" onClick={handleClose}>
-                    Close
-                </Button>
-                <Button variant="primary" onClick={handleSave}>
-                    Update
-                </Button>
-            </Modal.Footer>
-        </Modal>
+                        <div className={styles.inputGroup}>
+                            <label className={styles.inputLabel}>Full Name</label>
+                            <input
+                                type="text"
+                                name="fullname"
+                                value={user.fullname}
+                                onChange={handleOnChange}
+                                className={styles.formInput}
+                                placeholder="Enter full name"
+                            />
+                        </div>
+
+                        <div className={styles.inputGroup}>
+                            <label className={styles.inputLabel}>Email</label>
+                            <input
+                                type="email"
+                                name="email"
+                                value={user.email}
+                                onChange={handleOnChange}
+                                className={styles.formInput}
+                                placeholder="Enter email address"
+                            />
+                        </div>
+
+                        <div className={styles.inputGroup}>
+                            <label className={styles.inputLabel}>Mobile</label>
+                            <input
+                                type="text"
+                                name="mobile"
+                                value={user.mobile}
+                                onChange={handleOnChange}
+                                className={styles.formInput}
+                                placeholder="Enter mobile number"
+                            />
+                        </div>
+
+                        <div className={styles.inputGroup}>
+                            <label className={styles.inputLabel}>Password</label>
+                            <div className={styles.passwordInputContainer}>
+                                <input
+                                    type={showPassword ? "text" : "password"}
+                                    name="password"
+                                    value={user.password}
+                                    onChange={handleOnChange}
+                                    className={`${styles.formInput} ${styles.passwordInput}`}
+                                    placeholder="Enter password"
+                                />
+                                <button
+                                    type="button"
+                                    className={styles.passwordToggleButton}
+                                    onClick={togglePasswordVisibility}
+                                    title={showPassword ? "Hide password" : "Show password"}
+                                >
+                                    {showPassword ? <FaEyeSlash size={16} /> : <FaEye size={16} />}
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className={styles.inputGroup}>
+                            <label className={styles.inputLabel}>User Role</label>
+                            <select
+                                name="role"
+                                value={user.role}
+                                onChange={handleOnChange}
+                                className={styles.formSelect}
+                            >
+                                <option value="ADMIN">ADMIN</option>
+                                <option value="STAFF">STAFF</option>
+                                <option value="USER">USER</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div className={styles.modalFooter}>
+                    <button 
+                        className={styles.modalSecondaryButton}
+                        onClick={handleClose}
+                    >
+                        <FaTimes size={14} />
+                        Cancel
+                    </button>
+                    <button 
+                        className={styles.modalPrimaryButton}
+                        onClick={handleSave}
+                    >
+                        <FaSave size={14} />
+                        Update User
+                    </button>
+                </div>
+            </div>
+        </div>
     );
 }
 
