@@ -5,6 +5,7 @@ import { GetUserByEmail } from "../../service/UserData";
 interface AuthContextType {
     isAuthenticated: boolean;
     userRole: string;
+    userId: string | undefined;
     login: (token: string) => void;
     logout: () => void;
 }
@@ -14,6 +15,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [userRole, setUserRole] = useState<string>('ROLE_USER');
+    const [userId, setUserId] = useState<string>();
 
     useEffect(() => {
         // Get the token from local storage and validate
@@ -22,6 +24,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         
         if (token) {
             setIsAuthenticated(!!token);
+            
+            // If we have a token, decode it and fetch user data to restore userId
+            try {
+                const decoded = jwtDecode<any>(token);
+                const email = decoded.sub;
+                
+                GetUserByEmail(email)
+                    .then((userData) => {
+                        setUserId(userData.userId);
+                    })
+                    .catch((error) => {
+                        console.error("Error fetching user data:", error);
+                    });
+            } catch (error) {
+                console.error("Error decoding token:", error);
+            }
         }
         
         if (role) {
@@ -43,10 +61,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
         const email = decoded.sub;
         
-        // Fetch user data and store userId in local storage
+        // Fetch user data and store userId in state
         GetUserByEmail(email)
             .then((userData) => {
-                localStorage.setItem("lofUserId", userData.userId);
+                setUserId(userData.userId);
             })
             .catch((error) => {
                 console.error("Error fetching user data:", error);
@@ -57,16 +75,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     
     const logout = () => {
         // Remove token from local storage
-        localStorage.removeItem('lofUserId');
         localStorage.removeItem('lofRole');
         localStorage.removeItem('lofToken');
 
         setIsAuthenticated(false);
         setUserRole('ROLE_USER');
+        setUserId(undefined);
     }
 
     return(
-        <AuthContext.Provider value={{isAuthenticated, userRole, login, logout}}>
+        <AuthContext.Provider value={{isAuthenticated, userRole, userId, login, logout}}>
             {children}
         </AuthContext.Provider>
     );

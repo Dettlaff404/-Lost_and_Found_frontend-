@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { FaPlus, FaTimes, FaSave } from 'react-icons/fa';
 import styles from "../styles.module.css"
+import { useAuth } from '../Auth/AuthProvider';
 
 interface Request {
     requestId: string;
@@ -14,9 +15,12 @@ interface Request {
 }
 
 function AddRequest({ show, handleClose, handleAdd, addRequest }: any) {
+
+    const { userId } = useAuth();
+
     const [newRequest, setNewRequest] = useState<Request>({
         requestId: '',
-        userId: (localStorage.getItem('lofUserId') as string),
+        userId: userId as string,
         itemName: '',
         description: '',
         location: '',
