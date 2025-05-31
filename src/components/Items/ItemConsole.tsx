@@ -159,7 +159,9 @@ export function ItemConsole() {
     }
 
     // Page title
-    const formatedTitle = selectedItemType === "ALL" ? "Items Management" : selectedItemType + " Items Management";
+    
+    const formatedItemType = selectedItemType.charAt(0).toUpperCase() + selectedItemType.slice(1).toLowerCase();
+    const formatedTitle = formatedItemType + " Items Management";
 
     const getStatusBadge = (status: string) => {
         const statusClasses = {
