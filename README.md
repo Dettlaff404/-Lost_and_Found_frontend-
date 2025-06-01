@@ -1,7 +1,5 @@
 <div align="center">
-
-# 🔍 Lost & Found Portal
-
+# 🔍 Lost & Found Portal<br>
 </div>
 <div align="center">
 
