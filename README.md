@@ -1,8 +1,9 @@
-# 🔍 Lost & Found Portal
-
 <div align="center">
 
-![Lost & Found Banner](https://via.placeholder.com/800x200/4F46E5/FFFFFF?text=Lost+%26+Found+Portal)
+# 🔍 Lost & Found Portal
+
+</div>
+<div align="center">
 
 **A modern, full-stack Lost & Found management system**
 
