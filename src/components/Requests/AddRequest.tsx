@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { FaPlus, FaTimes, FaSave } from 'react-icons/fa';
 import styles from "../styles.module.css"
 import { useAuth } from '../Auth/AuthProvider';
@@ -16,11 +16,11 @@ interface Request {
 
 function AddRequest({ show, handleClose, handleAdd, addRequest }: any) {
 
-    const { userId } = useAuth();
+    const { userId, isLoading } = useAuth();
 
     const [newRequest, setNewRequest] = useState<Request>({
         requestId: '',
-        userId: userId as string,
+        userId: '',
         itemName: '',
         description: '',
         location: '',
@@ -29,11 +29,23 @@ function AddRequest({ show, handleClose, handleAdd, addRequest }: any) {
         status: ''
     });
 
+    // Update userId in request when it becomes available
+    useEffect(() => {
+        if (userId) {
+            setNewRequest(prev => ({ ...prev, userId }));
+        }
+    }, [userId]);
+
     const handleOnChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         setNewRequest({ ...newRequest, [e.target.name]: e.target.value });
     }
 
     const handleOnSubmit = async () => {
+        if (!userId) {
+            console.error("User ID is not available yet");
+            return;
+        }
+
         try {
             console.log(newRequest)
             const newRequestDetails = await addRequest(newRequest);
@@ -42,7 +54,7 @@ function AddRequest({ show, handleClose, handleAdd, addRequest }: any) {
 
             setNewRequest({
                 requestId: '',
-                userId: (localStorage.getItem('lofUserId') as string),
+                userId: userId as string,
                 itemName: '',
                 description: '',
                 location: '',
@@ -56,6 +68,28 @@ function AddRequest({ show, handleClose, handleAdd, addRequest }: any) {
     }
 
     if (!show) return null;
+
+    // Show loading if auth is still loading or userId is not yet available
+    if (isLoading || !userId) {
+        return (
+            <div className={styles.modalOverlay}>
+                <div className={styles.modalContainer}>
+                    <div className={styles.modalHeader}>
+                        <h2 className={styles.modalTitle}>Loading...</h2>
+                        <button 
+                            className={styles.modalCloseButton}
+                            onClick={handleClose}
+                        >
+                            <FaTimes size={18} />
+                        </button>
+                    </div>
+                    <div className={styles.modalBody}>
+                        <p>Please wait while we load your information...</p>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className={styles.modalOverlay}>
@@ -149,6 +183,7 @@ function AddRequest({ show, handleClose, handleAdd, addRequest }: any) {
                     <button 
                         className={styles.modalPrimaryButton}
                         onClick={handleOnSubmit}
+                        disabled={!userId}
                     >
                         <FaSave size={14} />
                         Save Request

@@ -57,11 +57,12 @@ export const SignIn = () => {
         try {
             const token = await SignInTask(user);
 
-            login(token);
+            // Wait for login to complete (including userId fetch)
+            await login(token);
+            
             console.log(token);
-
-            setUser({ email: "", password: "" });
             navigate('/requests');
+            setUser({ email: "", password: "" });
         } catch (error) {
             console.error("Sign in failed:", error);
             await Swal.fire({

@@ -6,7 +6,8 @@ interface AuthContextType {
     isAuthenticated: boolean;
     userRole: string;
     userId: string | undefined;
-    login: (token: string) => void;
+    isLoading: boolean;
+    login: (token: string) => Promise<void>;
     logout: () => void;
 }
 
@@ -16,38 +17,44 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [userRole, setUserRole] = useState<string>('ROLE_USER');
     const [userId, setUserId] = useState<string>();
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        // Get the token from local storage and validate
-        const token = localStorage.getItem('lofToken');
-        const role = localStorage.getItem('lofRole');
-        
-        if (token) {
-            setIsAuthenticated(!!token);
+        const initializeAuth = async () => {
+            setIsLoading(true);
+            // Get the token from local storage and validate
+            const token = localStorage.getItem('lofToken');
+            const role = localStorage.getItem('lofRole');
             
-            // If we have a token, decode it and fetch user data to restore userId
-            try {
-                const decoded = jwtDecode<any>(token);
-                const email = decoded.sub;
+            if (token) {
+                setIsAuthenticated(true);
                 
-                GetUserByEmail(email)
-                    .then((userData) => {
-                        setUserId(userData.userId);
-                    })
-                    .catch((error) => {
-                        console.error("Error fetching user data:", error);
-                    });
-            } catch (error) {
-                console.error("Error decoding token:", error);
+                // If we have a token, decode it and fetch user data to restore userId
+                try {
+                    const decoded = jwtDecode<any>(token);
+                    const email = decoded.sub;
+                    
+                    const userData = await GetUserByEmail(email);
+                    console.log("User data fetched on reload:", userData);
+                    setUserId(userData.userId);
+                } catch (error) {
+                    console.error("Error fetching user data on reload:", error);
+                    // If token is invalid or user fetch fails, clear auth state
+                    logout();
+                }
             }
-        }
-        
-        if (role) {
-            setUserRole(role);
-        }
+            
+            if (role) {
+                setUserRole(role);
+            }
+            
+            setIsLoading(false);
+        };
+
+        initializeAuth();
     }, [])
 
-    const login = (token: string) => {
+    const login = async (token: string): Promise<void> => {
         // Set token in local storage
         localStorage.setItem('lofToken', token);
 
@@ -58,19 +65,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         
         // Update state immediately
         setUserRole(role);
+        setIsAuthenticated(true);
 
         const email = decoded.sub;
         
-        // Fetch user data and store userId in state
-        GetUserByEmail(email)
-            .then((userData) => {
-                setUserId(userData.userId);
-            })
-            .catch((error) => {
-                console.error("Error fetching user data:", error);
-            });
-
-        setIsAuthenticated(true);
+        // Fetch user data and store userId in state - make this await
+        try {
+            const userData = await GetUserByEmail(email);
+            console.log("User data fetched:", userData);
+            setUserId(userData.userId);
+        } catch (error) {
+            console.error("Error fetching user data:", error);
+            throw error; // Re-throw to let caller handle the error
+        }
     }
     
     const logout = () => {
@@ -81,10 +88,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setIsAuthenticated(false);
         setUserRole('ROLE_USER');
         setUserId(undefined);
+        setIsLoading(false);
     }
 
     return(
-        <AuthContext.Provider value={{isAuthenticated, userRole, userId, login, logout}}>
+        <AuthContext.Provider value={{isAuthenticated, userRole, userId, isLoading, login, logout}}>
             {children}
         </AuthContext.Provider>
     );
