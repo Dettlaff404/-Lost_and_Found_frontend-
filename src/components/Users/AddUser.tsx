@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { FaUserPlus, FaTimes, FaSave, FaEye, FaEyeSlash } from 'react-icons/fa';
 import styles from "../styles.module.css"
+import Swal from 'sweetalert2';
 
 interface User {
     userId: string;
@@ -47,6 +48,13 @@ function AddUser({ show, handleClose, handleAdd, addUser }: any) {
 
         } catch (err) {
             console.error("Failed to Add the User", err)
+            await Swal.fire({
+                title: 'Invalid Input Data',
+                text: "Please check the input data and try again.",
+                icon: 'error',
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'Try Again'
+            });
         }
     }
 
@@ -64,7 +72,7 @@ function AddUser({ show, handleClose, handleAdd, addUser }: any) {
                         <FaUserPlus size={20} />
                     </div>
                     <h2 className={styles.modalTitle}>Register a New User</h2>
-                    <button 
+                    <button
                         className={styles.modalCloseButton}
                         onClick={handleClose}
                     >
@@ -149,14 +157,14 @@ function AddUser({ show, handleClose, handleAdd, addUser }: any) {
                 </div>
 
                 <div className={styles.modalFooter}>
-                    <button 
+                    <button
                         className={styles.modalSecondaryButton}
                         onClick={handleClose}
                     >
                         <FaTimes size={14} />
                         Cancel
                     </button>
-                    <button 
+                    <button
                         className={styles.modalPrimaryButton}
                         onClick={handleOnSubmit}
                     >

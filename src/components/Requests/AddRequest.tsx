@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { FaPlus, FaTimes, FaSave } from 'react-icons/fa';
 import styles from "../styles.module.css"
 import { useAuth } from '../Auth/AuthProvider';
+import Swal from 'sweetalert2';
 
 interface Request {
     requestId: string;
@@ -64,6 +65,13 @@ function AddRequest({ show, handleClose, handleAdd, addRequest }: any) {
             });
         } catch (err) {
             console.error("Failed to Add the Request", err)
+            await Swal.fire({
+                title: 'Invalid Input Data',
+                text: "Please check whether all fields are filled correctly.",
+                icon: 'error',
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'Try Again'
+            });
         }
     }
 
@@ -76,7 +84,7 @@ function AddRequest({ show, handleClose, handleAdd, addRequest }: any) {
                 <div className={styles.modalContainer}>
                     <div className={styles.modalHeader}>
                         <h2 className={styles.modalTitle}>Loading...</h2>
-                        <button 
+                        <button
                             className={styles.modalCloseButton}
                             onClick={handleClose}
                         >
@@ -99,7 +107,7 @@ function AddRequest({ show, handleClose, handleAdd, addRequest }: any) {
                         <FaPlus size={20} />
                     </div>
                     <h2 className={styles.modalTitle}>Create New Request</h2>
-                    <button 
+                    <button
                         className={styles.modalCloseButton}
                         onClick={handleClose}
                     >
@@ -173,14 +181,14 @@ function AddRequest({ show, handleClose, handleAdd, addRequest }: any) {
                 </div>
 
                 <div className={styles.modalFooter}>
-                    <button 
+                    <button
                         className={styles.modalSecondaryButton}
                         onClick={handleClose}
                     >
                         <FaTimes size={14} />
                         Cancel
                     </button>
-                    <button 
+                    <button
                         className={styles.modalPrimaryButton}
                         onClick={handleOnSubmit}
                         disabled={!userId}
