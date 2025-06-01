@@ -6,6 +6,7 @@ import { SignInTask } from "../../service/Auth";
 import { NavLink, useNavigate } from "react-router";
 import styles from "./signstyle.module.css";
 import { useAuth } from "./AuthProvider";
+import Swal from "sweetalert2";
 
 export const SignIn = () => {
     interface SignIn {
@@ -42,19 +43,34 @@ export const SignIn = () => {
         e.preventDefault();
 
         if (errors.email || !user.email || !user.password) {
-            alert("Please enter valid data before submitting.");
+            await Swal.fire({
+                title: 'Invalid Data',
+                text: "Please check your email and password.",
+                icon: 'error',
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'Try Again'
+            });
             return;
         }
 
         setIsLoading(true);
         try {
             const token = await SignInTask(user);
+
             login(token);
             console.log(token);
+
             setUser({ email: "", password: "" });
             navigate('/requests');
         } catch (error) {
             console.error("Sign in failed:", error);
+            await Swal.fire({
+                title: 'Invalid Credentials',
+                text: "Please check your email and password.",
+                icon: 'error',
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'Try Again'
+            });
         } finally {
             setIsLoading(false);
         }
@@ -110,9 +126,9 @@ export const SignIn = () => {
                         </Form.Group>
 
                         <div className={styles.formActions}>
-                            <Button 
-                                variant="primary" 
-                                type="submit" 
+                            <Button
+                                variant="primary"
+                                type="submit"
                                 className={styles.primaryButton}
                                 disabled={isLoading}
                             >

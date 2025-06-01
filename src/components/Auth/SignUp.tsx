@@ -6,6 +6,7 @@ import { SignUpTask } from "../../service/Auth";
 import { NavLink, useNavigate } from "react-router";
 import styles from "./signstyle.module.css";
 import { useAuth } from "./AuthProvider";
+import Swal from "sweetalert2";
 
 export const SignUp = () => {
     interface User {
@@ -65,7 +66,13 @@ export const SignUp = () => {
         e.preventDefault();
 
         if (errors.email || errors.mobile || errors.password || !user.fullname || !user.email || !user.mobile || !user.password) {
-            alert("Please enter valid data before submitting.");
+            await Swal.fire({
+                title: 'Invalid Credentials',
+                text: "Please check your email and password.",
+                icon: 'error',
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'Try Again'
+            });
             return;
         }
 

@@ -13,9 +13,9 @@ function NavB() {
   const [isItemsDropdownOpen, setIsItemsDropdownOpen] = useState(false);
 
   const handleOnClick = () => {
-    logout();
-    navigate('/signin');
     setIsMobileMenuOpen(false);
+    navigate('/');
+    logout();
   }
   
   const { setSelectedItemType } = useItemType();
